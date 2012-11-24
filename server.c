@@ -33,25 +33,30 @@ ssize_t receive_message(int msgqid,msgbuf * msgp,long mtype){
 }
 
 
-main(){
+main(int argc,char * argsv[]){
 
 	int qID = create_msg_queue();
-	printf("message queue id: %d\n",qID);
-	char * str = "hello";
+	printf("Message queue created (id: %d)\n",qID);
+
+	// printf("1st param: %s\n",argsv);
+
 
 	data_st ds;
-	ds->source = client1_mtype;
-	strncpy(ds->msgstr,"hello",MSGSTR_LEN);
-	//memcpy(ds->msgstr,str,256);
-	//ds->msgstr = str;
+	ds.source = client1_mtype;
+	strncpy(ds.msgstr,"hello",MSGSTR_LEN);
+	msgbuf mbuf;
+	mbuf.mtype = client1_mtype;
+	mbuf.data = ds;
 
-	msgbuf * mbuf;
-	mbuf->mtype = client1_mtype;
+	printf("Server: blocked on receiving...\n");
+	int bytesRead = 0;
+	bytesRead = receive_message(qID,&mbuf,client1_mtype);
+	if (bytesRead<0){
+		perror("problem removing message from queue!\n");
+	}else{
+		printf("Read %i bytes from message queue",bytesRead);	
+	}
 
-	mbuf->data = ds;
-
-	receive_message(qID,&mbuf,client1_mtype);
-
-	printf("should not be here");
+	
 
 }
