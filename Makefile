@@ -1,5 +1,5 @@
 CC=gcc
-OUT1=main
+OUT1=server
 CFLAGS=`pkg-config --cflags --libs glib-2.0`
 all:
 	@echo "Compiling $(OUT1).c.."
