@@ -6,7 +6,7 @@ all:
 	@$(CC) -o $(OUT1) $(OUT1).c
 	@echo "Compiled $(OUT1).c successfully!"
 	@echo "Running...\n"
-	@./$(OUT1)
+	# @./$(OUT1)
 run:
 	@echo "Running...\n"
 	@./$(OUT1)
