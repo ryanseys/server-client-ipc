@@ -1,5 +1,6 @@
 server
 client
+threads
 Debug/*
 Makefile
 client_zuwa*

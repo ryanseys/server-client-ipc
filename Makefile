@@ -1,6 +1,7 @@
 CC=gcc
 OUT1=server
 OUT2=client
+OUT3=threads
 CFLAGS=`pkg-config --cflags --libs glib-2.0`
 all:
 	@echo "Compiling $(OUT1).c.."
@@ -19,3 +20,8 @@ ryan:
 	@echo "Compiled $(OUT2).c successfully!"
 	@echo "Running...\n"
 	@./$(OUT1)
+threads:
+	@$(CC) -o $(OUT3) $(OUT3).c $(CFLAGS)
+	@echo "Compiled $(OUT3).c successfully!"
+	@echo "Running...\n"
+	@./$(OUT3)
