@@ -37,7 +37,7 @@ int create_msg_queue(int key){
 
 
 //receives a message from the message queue and prints it to the console
-void receive_message(int msgqid, msgbuf * msgp, long mtype){
+int receive_message(int msgqid, msgbuf * msgp, long mtype){
 	int bytesRead = msgrcv(msgqid,msgp,sizeof(struct data_st),mtype,0);
 	if (bytesRead == -1) {
 		if (errno == EIDRM) {
@@ -50,6 +50,7 @@ void receive_message(int msgqid, msgbuf * msgp, long mtype){
 		printf("Received %d bytes from message queue.\n", bytesRead);
 		printf("Message payload: Source: %ld\n", msgp->data.source);
 		printf("Message payload: Message string: %s\n", msgp->data.msgstr);
+    return msgp->data.source;
 	}
 }
 
@@ -75,7 +76,7 @@ int main(int argc,char * argv[]){
 	int key;
 	// 1st commandline argument = key of message queue
 	if(argc < 2){
-		key = 14;
+		key = 42;
 		qID = create_msg_queue(key);
 	} else{
 		//TODO: perform some type checking here
@@ -92,13 +93,13 @@ int main(int argc,char * argv[]){
 	}
 
 	msgbuf localbuf;
-	localbuf.mtype = client1_mtype;
 
 	while(strcmp(localbuf.data.msgstr, "exit\n") != 0){
 		printf("Server: Waiting for client request...\n");
 		printf("Send messages to mtype: %d\n", key);
-		int bytesRead = 0;
-		receive_message(qID,&localbuf, key); //reads a message from the message queue and prints to console
+		int sender = receive_message(qID, &localbuf, key); //reads a message from the message queue and prints to console
+    printf("Sending message to %d\n", sender);
+    send_message(localbuf.data.msgstr, qID, sender, key);
 	}
 
   /* Assuming that msqid has been obtained beforehand. */
@@ -111,6 +112,5 @@ int main(int argc,char * argv[]){
       perror("Error while removing message queue");
     }
   }
-
   return 0;
 }
