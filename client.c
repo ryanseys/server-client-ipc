@@ -79,6 +79,6 @@ main(int argc, char * argv[]){
 
   printf("Message queue got (key: %d)\n", key);
 
-  send_message("hello!", qID, 1, 1);
+  send_message("hello!", qID, key, 1);
 }
 

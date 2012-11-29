@@ -37,8 +37,7 @@ int create_msg_queue(int key){
 
 
 //receives a message from the message queue and prints it to the console
-void receive_message(int msgqid,msgbuf * msgp,long mtype){
-	printf("recieving...\n");
+void receive_message(int msgqid, msgbuf * msgp, long mtype){
 	int bytesRead = msgrcv(msgqid,msgp,sizeof(struct data_st),mtype,0);
 	if (bytesRead == -1) {
 		if (errno == EIDRM) {
@@ -55,22 +54,20 @@ void receive_message(int msgqid,msgbuf * msgp,long mtype){
 }
 
 //sends a message to the client via the messsage queue
-void send_message(char message[],int msgqid,msgbuf * msgp,long mtype,long sourceID){
-	data_st ds;
-	ds.source = sourceID;
+void send_message(char message[], int msgqid, long to, long from){
+  msgbuf new_msg;
+  new_msg.mtype = to; //reciever
+  data_st ds;
+  ds.source = from;
+  strncpy(ds.msgstr,message,MSGSTR_LEN);
+  ds.msgstr[MSGSTR_LEN - 1] = '\0';
+  new_msg.data = ds;
 
-	//TODO: ensure size of message is not longer than MSGSTR_LEN-1
-	strncpy(ds.msgstr,message,MSGSTR_LEN); //place message in server's local buffer
-	// ds.msgstr[MSGSTR_LEN – 1] = '\0'; //for safety
-	ds.msgstr[MSGSTR_LEN - 1] = '\0';
-	msgp->mtype = mtype;
-	msgp->data = ds;
-
-	int ret = msgsnd(msgqid, &msgp, sizeof(data_st), 0);
-	if (ret == -1) {
-		perror("msgsnd: Error attempting to send message!");
-		exit(EXIT_FAILURE);
-	}
+  int ret = msgsnd(msgqid, (void *) &new_msg, sizeof(data_st), IPC_NOWAIT);
+  if (ret == -1) {
+    perror("msgsnd: Error attempting to send message!");
+    exit(EXIT_FAILURE);
+  }
 }
 
 main(int argc,char * argv[]){
@@ -99,7 +96,8 @@ main(int argc,char * argv[]){
 
 	// while(1){ //server needs to keep runnning
 		printf("Server: Waiting for client request...\n");
+		printf("Send messages to mtype: %d\n", key);
 		int bytesRead = 0;
-		receive_message(qID,&localbuf,42); //reads a message from the message queue and prints to console
+		receive_message(qID,&localbuf,key); //reads a message from the message queue and prints to console
 	// }
 }
