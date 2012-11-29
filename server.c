@@ -100,6 +100,6 @@ main(int argc,char * argv[]){
 	// while(1){ //server needs to keep runnning
 		printf("Server: Waiting for client request...\n");
 		int bytesRead = 0;
-		receive_message(qID,&localbuf,client1_mtype); //reads a message from the message queue and prints to console
+		receive_message(qID,&localbuf,42); //reads a message from the message queue and prints to console
 	// }
 }

@@ -43,7 +43,7 @@ void receive_message(int msgqid, msgbuf * msgp, long mtype){
 //sends a message to the client via the messsage queue
 void send_message(char message[], int msgqid, long to, long from){
   msgbuf new_msg;
-  new_msg.mtype = to;
+  new_msg.mtype = to; //reciever
   data_st ds;
   ds.source = from;
   strncpy(ds.msgstr,message,MSGSTR_LEN);
