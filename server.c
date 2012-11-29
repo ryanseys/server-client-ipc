@@ -70,7 +70,7 @@ void send_message(char message[], int msgqid, long to, long from){
   }
 }
 
-main(int argc,char * argv[]){
+int main(int argc,char * argv[]){
 	int qID;
 	int key;
 	// 1st commandline argument = key of message queue
@@ -94,19 +94,23 @@ main(int argc,char * argv[]){
 	msgbuf localbuf;
 	localbuf.mtype = client1_mtype;
 
-	int n = 5;
-	while(n != 0){ //server needs to keep runnning
+	while(strcmp(localbuf.data.msgstr, "exit\n") != 0){
 		printf("Server: Waiting for client request...\n");
 		printf("Send messages to mtype: %d\n", key);
 		int bytesRead = 0;
 		receive_message(qID,&localbuf, key); //reads a message from the message queue and prints to console
-		n--;
 	}
-	int i;
-  for(i = 1; i <= 5; i++) {
-    char string[MSGSTR_LEN];
-    snprintf(string, MSGSTR_LEN-1, "%d: hello client.", i);
-    send_message(string, qID, 1, key);
-    sleep(1);
+
+  /* Assuming that msqid has been obtained beforehand. */
+  if (msgctl(qID, IPC_RMID, NULL) == -1) {
+  /* As an example for checking errno. */
+    if (errno == EIDRM) {
+      fprintf(stderr, "Message queue already removed.\n");
+    }
+    else {
+      perror("Error while removing message queue");
+    }
   }
+
+  return 0;
 }
