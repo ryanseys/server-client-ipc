@@ -78,7 +78,21 @@ main(int argc, char * argv[]){
   }
 
   printf("Message queue got (key: %d)\n", key);
+  int i;
+  for(i = 1; i <= 5; i++) {
+    char string[MSGSTR_LEN];
+    snprintf(string, MSGSTR_LEN-1, "%d: hello server.", i);
+    send_message(string, qID, key, 1);
+    printf("Sent hello server to %d\n", key);
+    sleep(1);
+  }
 
-  send_message("hello!", qID, key, 1);
+  msgbuf localbuf;
+  localbuf.mtype = client1_mtype;
+  int n = 5;
+  while(n != 0) {
+    receive_message(qID, &localbuf, 1);
+    n--;
+  }
 }
 

@@ -94,10 +94,19 @@ main(int argc,char * argv[]){
 	msgbuf localbuf;
 	localbuf.mtype = client1_mtype;
 
-	// while(1){ //server needs to keep runnning
+	int n = 5;
+	while(n != 0){ //server needs to keep runnning
 		printf("Server: Waiting for client request...\n");
 		printf("Send messages to mtype: %d\n", key);
 		int bytesRead = 0;
-		receive_message(qID,&localbuf,key); //reads a message from the message queue and prints to console
-	// }
+		receive_message(qID,&localbuf, key); //reads a message from the message queue and prints to console
+		n--;
+	}
+	int i;
+  for(i = 1; i <= 5; i++) {
+    char string[MSGSTR_LEN];
+    snprintf(string, MSGSTR_LEN-1, "%d: hello client.", i);
+    send_message(string, qID, 1, key);
+    sleep(1);
+  }
 }
