@@ -41,18 +41,16 @@ void receive_message(int msgqid, msgbuf * msgp, long mtype){
 }
 
 //sends a message to the client via the messsage queue
-void send_message(char message[], int msgqid, msgbuf * msgp, long mtype, long sourceID){
+void send_message(char message[], int msgqid, long to, long from){
+  msgbuf new_msg;
+  new_msg.mtype = to;
   data_st ds;
-  ds.source = sourceID;
-
-  //TODO: ensure size of message is not longer than MSGSTR_LEN-1
-  strncpy(ds.msgstr,message,MSGSTR_LEN); //place message in server's local buffer
-  // ds.msgstr[MSGSTR_LEN – 1] = '\0'; //for safety
+  ds.source = from;
+  strncpy(ds.msgstr,message,MSGSTR_LEN);
   ds.msgstr[MSGSTR_LEN - 1] = '\0';
-  msgp->mtype = mtype;
-  msgp->data = ds;
+  new_msg.data = ds;
 
-  int ret = msgsnd(msgqid, &msgp, sizeof(data_st), 0);
+  int ret = msgsnd(msgqid, (void *) &new_msg, sizeof(data_st), IPC_NOWAIT);
   if (ret == -1) {
     perror("msgsnd: Error attempting to send message!");
     exit(EXIT_FAILURE);
@@ -80,18 +78,7 @@ main(int argc, char * argv[]){
   }
 
   printf("Message queue got (key: %d)\n", key);
-  msgbuf new_msg;
 
-  //send_message("hello!", qID, &new_msg, 1, 1);
-  new_msg.mtype = 1;
-  data_st ds;
-  ds.source = 1;
-  strncpy(ds.msgstr,"hello1",MSGSTR_LEN);
-  ds.msgstr[MSGSTR_LEN - 1] = '\0';
-  new_msg.mtype = 1;
-  new_msg.data = ds;
-
-  msgsnd(qID, (void *) &new_msg, sizeof(data_st), IPC_NOWAIT);
-  printf("sent\n");
+  send_message("hello!", qID, 1, 1);
 }
 
