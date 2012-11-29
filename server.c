@@ -28,8 +28,8 @@ typedef struct msgbuf_st {
 int create_msg_queue(int key){
 	int qID;
 	// printf("%d\n",key);
-	if ((qID = msgget(key,IPC_CREAT | PERMISSIONS)) ==-1){
-		perror("mssget: Error creating msg queue \n"); 
+	if ((qID = msgget(key, IPC_CREAT | PERMISSIONS)) == -1){
+		perror("mssget: Error creating msg queue \n");
 		exit(EXIT_FAILURE);
 	}
 	return qID;
@@ -38,10 +38,11 @@ int create_msg_queue(int key){
 
 //receives a message from the message queue and prints it to the console
 void receive_message(int msgqid,msgbuf * msgp,long mtype){
+	printf("recieving...\n");
 	int bytesRead = msgrcv(msgqid,msgp,sizeof(struct data_st),mtype,0);
 	if (bytesRead == -1) {
-		if (errno == EIDRM) { 
-			fprintf(stderr, "Message queue removed while waiting!\n"); 
+		if (errno == EIDRM) {
+			fprintf(stderr, "Message queue removed while waiting!\n");
 		}
 		perror("msgrcv: Error while attempting to receive message...\n");
 		exit(EXIT_FAILURE);
@@ -67,32 +68,38 @@ void send_message(char message[],int msgqid,msgbuf * msgp,long mtype,long source
 
 	int ret = msgsnd(msgqid, &msgp, sizeof(data_st), 0);
 	if (ret == -1) {
-		perror("msgsnd: Error attempting to send message!"); 
+		perror("msgsnd: Error attempting to send message!");
 		exit(EXIT_FAILURE);
 	}
-
 }
 
 main(int argc,char * argv[]){
 	int qID;
-	// 1st commandline argument = key of message queue 
+	int key;
+	// 1st commandline argument = key of message queue
 	if(argc < 2){
-		qID = create_msg_queue(14);
-	}else{
+		key = 14;
+		qID = create_msg_queue(key);
+	} else{
 		//TODO: perform some type checking here
-		qID = create_msg_queue(atoi(argv[1]));	
+		key = atoi(argv[1]);
+		qID = create_msg_queue(key);
 	}
-	
-	printf("Message queue created (id: %d)\n",qID);
+
+	if(qID < 0) {
+		printf("Failed to create queue.\n");
+		exit(-1); //failed
+	}
+	else {
+		printf("Creating a queue with key: %d\n", key);
+	}
 
 	msgbuf localbuf;
 	localbuf.mtype = client1_mtype;
-	
 
 	// while(1){ //server needs to keep runnning
 		printf("Server: Waiting for client request...\n");
 		int bytesRead = 0;
 		receive_message(qID,&localbuf,client1_mtype); //reads a message from the message queue and prints to console
 	// }
-	
 }

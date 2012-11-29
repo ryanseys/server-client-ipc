@@ -1,4 +1,5 @@
 server
+client
 Debug/*
 Makefile
 client_zuwa*
