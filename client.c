@@ -34,9 +34,9 @@ void receive_message(int msgqid, msgbuf * msgp, long mtype){
     //exit(EXIT_FAILURE);
   }
   else{
-    printf("Received %d bytes from message queue.\n", bytesRead);
-    printf("Message payload: Source: %ld\n", msgp->data.source);
-    printf("Message payload: Message string: %s\n", msgp->data.msgstr);
+    //printf("Received %d bytes from message queue.\n", bytesRead);
+    //printf("Message payload: Source: %ld\n", msgp->data.source);
+    //printf("Message payload: Message string: %s\n", msgp->data.msgstr);
   }
 }
 
@@ -60,7 +60,7 @@ void send_message(char message[], int msgqid, long to, long from){
 void * send_thread(void * arg) {
   int * val = arg;
   char buffer[MSGSTR_LEN];
-  printf("In the send thread with arg %d.\n", *val);
+  //printf("In the send thread with arg %d.\n", *val);
 
   printf("Enter message to send: ");
   while(fgets(buffer, MSGSTR_LEN, stdin)) {
@@ -81,7 +81,7 @@ void * send_thread(void * arg) {
 
 void * receive_thread(void * arg) {
   int * val = arg;
-  printf("In the receive thread with arg %d.\n", *val);
+  //printf("In the receive thread with arg %d.\n", *val);
 
   msgbuf localbuf;
   localbuf.mtype = client1_mtype;
@@ -91,7 +91,7 @@ void * receive_thread(void * arg) {
       sleep(1);
     }
     else {
-      printf("Received message from 1: %s\n", localbuf.data.msgstr);
+      printf("Received message from server: %s\n", localbuf.data.msgstr);
       strncpy(localbuf.data.msgstr,"",MSGSTR_LEN);
     }
   }
@@ -115,12 +115,12 @@ int main(int argc, char * argv[]) {
   // 1st commandline argument = key of message queue
   if(argc == 2) { // get command line argument
     key = atoi(argv[1]);
-    printf("Trying to get queue (key: %d)\n", key);
+    //printf("Trying to get queue (key: %d)\n", key);
     qID = msgget(key, 0); // 0 for making use of existing queue
   }
   else if(argc == 1) { //assume 42
     key = 42;
-    printf("Trying to get queue (key: %d)\n", key);
+    //printf("Trying to get queue (key: %d)\n", key);
     qID = msgget(key, 0);
   }
   else {
@@ -134,7 +134,7 @@ int main(int argc, char * argv[]) {
     exit(-1);
   }
 
-  printf("Message queue got (key: %d)\n", key);
+  //printf("Message queue got (key: %d)\n", key);
 
   //create sender thread
   targs[0] = qID;

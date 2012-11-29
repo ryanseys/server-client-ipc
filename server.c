@@ -47,9 +47,9 @@ int receive_message(int msgqid, msgbuf * msgp, long mtype){
 		exit(EXIT_FAILURE);
 	}
 	else{
-		printf("Received %d bytes from message queue.\n", bytesRead);
-		printf("Message payload: Source: %ld\n", msgp->data.source);
-		printf("Message payload: Message string: %s\n", msgp->data.msgstr);
+		//printf("Received %d bytes from message queue.\n", bytesRead);
+		//printf("Message payload: Source: %ld\n", msgp->data.source);
+		printf("Message from %ld: %s\n", msgp->data.source, msgp->data.msgstr);
     return msgp->data.source;
 	}
 }
@@ -95,10 +95,10 @@ int main(int argc,char * argv[]){
 	msgbuf localbuf;
 
 	while(strcmp(localbuf.data.msgstr, "exit\n") != 0){
-		printf("Server: Waiting for client request...\n");
-		printf("Send messages to mtype: %d\n", key);
+		printf("Server (key: %d): Waiting for client request...\n", key);
+		//printf("Send messages to mtype: %d\n", key);
 		int sender = receive_message(qID, &localbuf, key); //reads a message from the message queue and prints to console
-    printf("Sending message to %d\n", sender);
+    printf("Relaying message to %d\n", sender);
     send_message(localbuf.data.msgstr, qID, sender, key);
 	}
 
