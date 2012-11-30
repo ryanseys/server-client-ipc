@@ -2,7 +2,7 @@ CC=gcc
 OUT1=server
 OUT2=client
 OUT3=threads
-CFLAGS=`pkg-config --cflags --libs glib-2.0`
+# CFLAGS=`pkg-config --cflags --libs glib-2.0`
 all:
 	@echo "Compiling $(OUT1).c.."
 	@$(CC) -o $(OUT1) $(OUT1).c

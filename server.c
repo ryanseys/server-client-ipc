@@ -35,7 +35,7 @@ int create_msg_queue(int key){
 
 //receives a message from the message queue and prints it to the console
 int receive_message(int msgqid, msgbuf * msgp, long mtype){
-	int bytesRead = msgrcv(msgqid,msgp,sizeof(struct data_st),mtype,0);
+	int bytesRead = msgrcv(msgqid, msgp, sizeof(struct data_st), mtype, 0);
 	if (bytesRead == -1) {
 		if (errno == EIDRM) {
 			fprintf(stderr, "Message queue removed while waiting!\n");
@@ -92,9 +92,10 @@ int main(int argc,char * argv[]){
 	msgbuf localbuf_client1;
   msgbuf localbuf_client2;
 
-	while((strcmp(localbuf_client1.data.msgstr, "exit") != 0) && (strcmp(localbuf_client1.data.msgstr, "exit\n") != 0)){
-		printf("Server connected! Waiting for client to connect...\n");
-    printf("Connect client by running ./client %d\n", key);
+  printf("Server connected! Waiting for client to connect...\n");
+  printf("Connect client by running ./client %d\n", key);
+
+	while((strcmp(localbuf_client1.data.msgstr, "exit") != 0) && (strcmp(localbuf_client1.data.msgstr, "exit") != 0)){
 		//printf("Send messages to mtype: %d\n", key);
 		int sender = receive_message(qID, &localbuf_client1, key); //reads a message from the message queue and prints to console
     printf("Relaying message to %d\n", sender);

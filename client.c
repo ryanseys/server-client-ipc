@@ -8,8 +8,8 @@
 #include <pthread.h>
 
 #define PERMISSIONS 0640
-#define client1_mtype 69
-#define client2_mtype 2L
+#define DEFAULT_SERVER_KEY 42
+#define CLIENT_KEY 69
 #define MSGSTR_LEN 256
 #define NUM_THREADS 2
 
@@ -58,7 +58,9 @@ void send_message(char message[], int msgqid, long to, long from){
 }
 
 void * send_thread(void * arg) {
-  int * val = arg;
+  int * qID = arg;
+  int * key = arg+sizeof(int);
+
   char buffer[MSGSTR_LEN];
   //printf("In the send thread with arg %d.\n", *val);
 
@@ -67,7 +69,7 @@ void * send_thread(void * arg) {
       buffer[strlen(buffer) - 1] = '\0';
     }
     printf("Sending %s\n", buffer);
-    send_message(buffer, *val, 42, 69);
+    send_message(buffer, *qID, *key, CLIENT_KEY);
     if(strcmp(buffer, "exit") == 0) exit(0); //exit if you say to exit
   }
 
@@ -76,18 +78,19 @@ void * send_thread(void * arg) {
     perror("malloc error");
     pthread_exit(NULL);
   }
-  *myretp = (*val);
+  *myretp = (*qID);
   return myretp; /* Same as: pthread_exit(myretp); */
 }
 
 void * receive_thread(void * arg) {
-  int * val = arg; //qID of server
+  int * qID = arg;
+  int * key = arg+sizeof(int);
   //printf("In the receive thread with arg %d.\n", *val);
 
   msgbuf localbuf;
-  localbuf.mtype = client1_mtype;
+  localbuf.mtype = CLIENT_KEY;
   while(1) {
-    receive_message(*val, &localbuf, 69);
+    receive_message(*qID, &localbuf, CLIENT_KEY);
     if(strcmp(localbuf.data.msgstr, "") == 0) {
       sleep(1);
     }
@@ -102,7 +105,7 @@ void * receive_thread(void * arg) {
     perror("malloc error");
     pthread_exit(NULL);
   }
-  *myretp = (*val);
+  *myretp = (*qID);
   return myretp; /* Same as: pthread_exit(myretp); */
 }
 
@@ -110,7 +113,6 @@ int main(int argc, char * argv[]) {
   pthread_t threads[NUM_THREADS];
   int targs[NUM_THREADS];
   int i, ret, ret2;
-
   int qID;
   int key;
   int vars[2];
@@ -121,7 +123,7 @@ int main(int argc, char * argv[]) {
     qID = msgget(key, 0); // 0 for making use of existing queue
   }
   else if(argc == 1) { //assume 42
-    key = 42;
+    key = DEFAULT_SERVER_KEY;
     //printf("Trying to get queue (key: %d)\n", key);
     qID = msgget(key, 0);
   }
@@ -143,15 +145,13 @@ int main(int argc, char * argv[]) {
   //printf("Message queue got (key: %d)\n", key);
 
   //create sender thread
-  targs[0] = qID;
-  ret = pthread_create(&(threads[0]), NULL, send_thread, &(targs[0]));
+  ret = pthread_create(&(threads[0]), NULL, send_thread, &(vars));
   if (ret == -1) {
     perror("pthread_create");
     exit(EXIT_FAILURE);
   }
 
-  targs[1] = qID;
-  ret = pthread_create(&(threads[1]), NULL, receive_thread, &(targs[1]));
+  ret = pthread_create(&(threads[1]), NULL, receive_thread, &(vars));
   if (ret == -1) {
     perror("pthread_create");
     exit(EXIT_FAILURE);
