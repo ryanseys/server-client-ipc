@@ -20,7 +20,6 @@ typedef struct msgbuf_st {
    data_st data; /* Data */
 } msgbuf;
 
-
 int create_msg_queue(int key){
 	int qID;
 	// printf("%d\n",key);
