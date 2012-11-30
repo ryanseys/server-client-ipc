@@ -7,10 +7,8 @@
 #include <errno.h>
 
 #define PERMISSIONS 0640
-
-#define client1_mtype 1
-#define client2_mtype 2L
 #define MSGSTR_LEN 256
+#define DEFAULT_SERVER_KEY 42
 
 typedef struct data_st{
 	long source;
@@ -73,7 +71,7 @@ int main(int argc,char * argv[]){
 	int key;
 	// 1st commandline argument = key of message queue
 	if(argc < 2){
-		key = 42;
+		key = DEFAULT_SERVER_KEY;
 		qID = create_msg_queue(key);
 	} else {
 		//TODO: perform some type checking here
