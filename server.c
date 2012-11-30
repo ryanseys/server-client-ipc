@@ -6,8 +6,6 @@
 #include <string.h>
 #include <errno.h>
 
-
-
 #define PERMISSIONS 0640
 
 #define client1_mtype 1
@@ -34,7 +32,6 @@ int create_msg_queue(int key){
 	}
 	return qID;
 }
-
 
 //receives a message from the message queue and prints it to the console
 int receive_message(int msgqid, msgbuf * msgp, long mtype){
@@ -78,7 +75,7 @@ int main(int argc,char * argv[]){
 	if(argc < 2){
 		key = 42;
 		qID = create_msg_queue(key);
-	} else{
+	} else {
 		//TODO: perform some type checking here
 		key = atoi(argv[1]);
 		qID = create_msg_queue(key);
@@ -92,14 +89,16 @@ int main(int argc,char * argv[]){
 		printf("Creating a queue with key: %d\n", key);
 	}
 
-	msgbuf localbuf;
+	msgbuf localbuf_client1;
+  msgbuf localbuf_client2;
 
-	while(strcmp(localbuf.data.msgstr, "exit\n") != 0){
-		printf("Server (key: %d): Waiting for client request...\n", key);
+	while((strcmp(localbuf_client1.data.msgstr, "exit") != 0) && (strcmp(localbuf_client1.data.msgstr, "exit\n") != 0)){
+		printf("Server connected! Waiting for client to connect...\n");
+    printf("Connect client by running ./client %d\n", key);
 		//printf("Send messages to mtype: %d\n", key);
-		int sender = receive_message(qID, &localbuf, key); //reads a message from the message queue and prints to console
+		int sender = receive_message(qID, &localbuf_client1, key); //reads a message from the message queue and prints to console
     printf("Relaying message to %d\n", sender);
-    send_message(localbuf.data.msgstr, qID, sender, key);
+    send_message(localbuf_client1.data.msgstr, qID, sender, key);
 	}
 
   /* Assuming that msqid has been obtained beforehand. */

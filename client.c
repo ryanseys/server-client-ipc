@@ -24,7 +24,7 @@ typedef struct msgbuf_st {
 } msgbuf;
 
 //receives a message from the message queue and prints it to the console
-void receive_message(int msgqid, msgbuf * msgp, long mtype){
+void receive_message(int msgqid, msgbuf * msgp, long mtype) {
   int bytesRead = msgrcv(msgqid,msgp,sizeof(struct data_st),mtype,IPC_NOWAIT);
   if (bytesRead == -1) {
     if (errno == EIDRM) {
@@ -62,12 +62,13 @@ void * send_thread(void * arg) {
   char buffer[MSGSTR_LEN];
   //printf("In the send thread with arg %d.\n", *val);
 
-  printf("Enter message to send: ");
   while(fgets(buffer, MSGSTR_LEN, stdin)) {
+    if (buffer[strlen(buffer) - 1] == '\n') {
+      buffer[strlen(buffer) - 1] = '\0';
+    }
     printf("Sending %s\n", buffer);
     send_message(buffer, *val, 42, 69);
-    if(strcmp(buffer, "exit\n") == 0) exit(0); //exit if you say to exit
-    printf("Enter message to send: ");
+    if(strcmp(buffer, "exit") == 0) exit(0); //exit if you say to exit
   }
 
   int * myretp = malloc(sizeof(int));
@@ -80,7 +81,7 @@ void * send_thread(void * arg) {
 }
 
 void * receive_thread(void * arg) {
-  int * val = arg;
+  int * val = arg; //qID of server
   //printf("In the receive thread with arg %d.\n", *val);
 
   msgbuf localbuf;
@@ -92,7 +93,7 @@ void * receive_thread(void * arg) {
     }
     else {
       printf("Received message from server: %s\n", localbuf.data.msgstr);
-      strncpy(localbuf.data.msgstr,"",MSGSTR_LEN);
+      strncpy(localbuf.data.msgstr, "", MSGSTR_LEN);
     }
   }
 
@@ -112,6 +113,7 @@ int main(int argc, char * argv[]) {
 
   int qID;
   int key;
+  int vars[2];
   // 1st commandline argument = key of message queue
   if(argc == 2) { // get command line argument
     key = atoi(argv[1]);
@@ -133,6 +135,10 @@ int main(int argc, char * argv[]) {
     printf("Failed to get queue, got status: %d\n", qID);
     exit(-1);
   }
+
+  // vars = [qID, key]
+  vars[0] = qID;
+  vars[1] = key;
 
   //printf("Message queue got (key: %d)\n", key);
 
@@ -177,4 +183,3 @@ int main(int argc, char * argv[]) {
 
   return 0;
 }
-
