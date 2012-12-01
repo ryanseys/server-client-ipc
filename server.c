@@ -11,8 +11,9 @@
 #define DEFAULT_SERVER_KEY 42
 
 typedef struct data_st{
-	long source;
-	char msgstr[MSGSTR_LEN];
+  long source; //source number
+  long dest; //destination number
+  char msgstr[MSGSTR_LEN];
 } data_st;
 
 typedef struct msgbuf_st {
@@ -43,7 +44,8 @@ int receive_message(int msgqid, msgbuf * msgp, long mtype){
 	else{
 		//printf("Received %d bytes from message queue.\n", bytesRead);
 		//printf("Message payload: Source: %ld\n", msgp->data.source);
-		printf("Message from %ld: %s\n", msgp->data.source, msgp->data.msgstr);
+		printf("Message from %ld to %ld: %s\n",
+      msgp->data.source, msgp->data.dest, msgp->data.msgstr);
     return msgp->data.source;
 	}
 }
@@ -69,14 +71,15 @@ int main(int argc,char * argv[]){
 	int qID;
 	int key;
 	// 1st commandline argument = key of message queue
-	if(argc < 2){
-		key = DEFAULT_SERVER_KEY;
-		qID = create_msg_queue(key);
-	} else {
-		//TODO: perform some type checking here
-		key = atoi(argv[1]);
-		qID = create_msg_queue(key);
+	if(argc == 2){
+        //TODO: perform some type checking here
+    key = atoi(argv[1]);
+    qID = create_msg_queue(key);
 	}
+  else {
+    printf("Invalid arguments.\nUsage: ./server new_server_key\n");
+    exit(-1);
+  }
 
 	if(qID < 0) {
 		printf("Failed to create queue.\n");
@@ -92,9 +95,11 @@ int main(int argc,char * argv[]){
   printf("Server connected! Waiting for client to connect...\n");
   printf("Connect client by running ./client %d\n", key);
 
-	while((strcmp(localbuf_client1.data.msgstr, "exit") != 0) && (strcmp(localbuf_client1.data.msgstr, "exit") != 0)){
+	while((strcmp(localbuf_client1.data.msgstr, "exit") != 0) &&
+        (strcmp(localbuf_client2.data.msgstr, "exit") != 0)) {
 		//printf("Send messages to mtype: %d\n", key);
-		int sender = receive_message(qID, &localbuf_client1, key); //reads a message from the message queue and prints to console
+    //reads a message from the message queue and prints to console//
+		int sender = receive_message(qID, &localbuf_client1, key);
     printf("Relaying message to %d\n", sender);
     send_message(localbuf_client1.data.msgstr, qID, sender, key);
 	}

@@ -12,16 +12,15 @@ all:
 run:
 	@echo "Running...\n"
 	@./$(OUT1)
-ryan:
+s:
 	@echo "Compiling $(OUT1).c.."
 	@$(CC) -o $(OUT1) $(OUT1).c $(CFLAGS)
 	@echo "Compiled $(OUT1).c successfully!"
+	@echo "Running...\n"
+	@./$(OUT1) 42
+c:
+	@echo "Compiling $(OUT2).c.."
 	@$(CC) -o $(OUT2) $(OUT2).c $(CFLAGS)
 	@echo "Compiled $(OUT2).c successfully!"
-	@echo "Running...\n"
-	@./$(OUT1)
-threads:
-	@$(CC) -o $(OUT3) $(OUT3).c $(CFLAGS)
-	@echo "Compiled $(OUT3).c successfully!"
-	@echo "Running...\n"
-	@./$(OUT3)
+	@echo "Running ./$(OUT2) 42 69..."
+	@./$(OUT2) 42 69

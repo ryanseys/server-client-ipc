@@ -10,11 +10,13 @@
 #define PERMISSIONS 0640
 #define DEFAULT_SERVER_KEY 42
 #define CLIENT_KEY 69
+#define CLIENT_2_KEY 70
 #define MSGSTR_LEN 256
 #define NUM_THREADS 2
 
 typedef struct data_st{
-  long source;
+  long source; //source number
+  long dest; //destination number
   char msgstr[MSGSTR_LEN];
 } data_st;
 
@@ -41,11 +43,12 @@ void receive_message(int msgqid, msgbuf * msgp, long mtype) {
 }
 
 //sends a message to the client via the messsage queue
-void send_message(char message[], int msgqid, long to, long from){
+void send_message(char message[], int msgqid, long to, long from, long to_client){
   msgbuf new_msg;
   new_msg.mtype = to; //reciever
   data_st ds;
   ds.source = from;
+  ds.dest = to_client;
   strncpy(ds.msgstr,message,MSGSTR_LEN);
   ds.msgstr[MSGSTR_LEN - 1] = '\0';
   new_msg.data = ds;
@@ -60,6 +63,8 @@ void send_message(char message[], int msgqid, long to, long from){
 void * send_thread(void * arg) {
   int * qID = arg;
   int * key = arg+sizeof(int);
+  int * client_key = arg+sizeof(int)*2;
+  int other_client_key;
 
   char buffer[MSGSTR_LEN];
   //printf("In the send thread with arg %d.\n", *val);
@@ -68,9 +73,25 @@ void * send_thread(void * arg) {
     if (buffer[strlen(buffer) - 1] == '\n') {
       buffer[strlen(buffer) - 1] = '\0';
     }
-    printf("Sending %s\n", buffer);
-    send_message(buffer, *qID, *key, CLIENT_KEY);
-    if(strcmp(buffer, "exit") == 0) exit(0); //exit if you say to exit
+
+    char* input = buffer;
+    char* space = " ";
+    int start = 0;
+    int pos;
+    char numberbuff[255];
+    char messagebuff[255];
+    pos = strcspn(input, space);
+    if(pos != NULL) {
+      other_client_key = atoi(strncpy(numberbuff, input, pos));
+      if(other_client_key != NULL) {
+        char * message = buffer+pos+1;
+        printf("Sending %s to %d\n", message, other_client_key);
+        send_message(message, *qID, *key, *client_key, other_client_key);
+        if(strcmp(message, "exit") == 0) exit(0); //exit if you say to exit
+      }
+      else printf("Usage: receiving_client_key message_string\n");
+    }
+    else printf("Usage: receiving_client_key message_string\n");
   }
 
   int * myretp = malloc(sizeof(int));
@@ -85,12 +106,13 @@ void * send_thread(void * arg) {
 void * receive_thread(void * arg) {
   int * qID = arg;
   int * key = arg+sizeof(int);
+  int * client_key = arg+sizeof(int)*2;
   //printf("In the receive thread with arg %d.\n", *val);
 
   msgbuf localbuf;
-  localbuf.mtype = CLIENT_KEY;
+  localbuf.mtype = *client_key;
   while(1) {
-    receive_message(*qID, &localbuf, CLIENT_KEY);
+    receive_message(*qID, &localbuf, *client_key);
     if(strcmp(localbuf.data.msgstr, "") == 0) {
       sleep(1);
     }
@@ -109,27 +131,49 @@ void * receive_thread(void * arg) {
   return myretp; /* Same as: pthread_exit(myretp); */
 }
 
+void start_thread(pthread_t * thread) {
+  void * thread_ret_ptr;
+  int ret;
+  ret = pthread_join(*thread, &thread_ret_ptr);
+  if (ret == -1) { perror("Thread join error");
+    exit(EXIT_FAILURE);
+  }
+  if (thread_ret_ptr != NULL) {
+    int * intp = (int *) thread_ret_ptr;
+    printf("Receive thread returned: %d\n", *intp);
+    free(thread_ret_ptr);
+  }
+
+}
+
+void create_thread(pthread_t * thread, void * vars, int thread_type) {
+  int ret;
+  if(thread_type == 1) ret = pthread_create(thread, NULL, send_thread, vars);
+  if(thread_type == 2) ret = pthread_create(thread, NULL, receive_thread, vars);
+  if (ret == -1) {
+    perror("pthread_create");
+    exit(EXIT_FAILURE);
+  }
+}
+
 int main(int argc, char * argv[]) {
   pthread_t threads[NUM_THREADS];
   int targs[NUM_THREADS];
   int i, ret, ret2;
   int qID;
   int key;
+  int client_key;
   int vars[2];
+  char * input;
   // 1st commandline argument = key of message queue
-  if(argc == 2) { // get command line argument
+  if(argc == 3) { // get command line argument
     key = atoi(argv[1]);
+    client_key = atoi(argv[2]);
     //printf("Trying to get queue (key: %d)\n", key);
     qID = msgget(key, 0); // 0 for making use of existing queue
   }
-  else if(argc == 1) { //assume 42
-    key = DEFAULT_SERVER_KEY;
-    //printf("Trying to get queue (key: %d)\n", key);
-    qID = msgget(key, 0);
-  }
   else {
-    //TODO: perform some type checking here
-    printf("Too many arguments: %d\n", argc);
+    printf("Invalid arguments.\nUsage: ./client running_server_key new_client_key\n");
     exit(-1);
   }
 
@@ -141,45 +185,15 @@ int main(int argc, char * argv[]) {
   // vars = [qID, key]
   vars[0] = qID;
   vars[1] = key;
-
+  vars[2] = client_key;
   //printf("Message queue got (key: %d)\n", key);
 
   //create sender thread
-  ret = pthread_create(&(threads[0]), NULL, send_thread, &(vars));
-  if (ret == -1) {
-    perror("pthread_create");
-    exit(EXIT_FAILURE);
-  }
+  create_thread(&(threads[0]), vars, 1);
+  create_thread(&(threads[1]), vars, 2);
 
-  ret = pthread_create(&(threads[1]), NULL, receive_thread, &(vars));
-  if (ret == -1) {
-    perror("pthread_create");
-    exit(EXIT_FAILURE);
-  }
-
-  /* Wait for the send thread to end. */
-  void * thread_ret_ptr_send;
-  ret = pthread_join(threads[0], &thread_ret_ptr_send);
-  if (ret == -1) { perror("Thread join error");
-    exit(EXIT_FAILURE);
-  }
-  if (thread_ret_ptr_send != NULL) {
-    int * intp = (int *) thread_ret_ptr_send;
-    printf("Send thread returned: %d\n", *intp);
-    free(thread_ret_ptr_send);
-  }
-
-  /* Wait for the receive thread to end. */
-  void * thread_ret_ptr_receive;
-  ret2 = pthread_join(threads[1], &thread_ret_ptr_receive);
-  if (ret2 == -1) { perror("Thread join error");
-    exit(EXIT_FAILURE);
-  }
-  if (thread_ret_ptr_receive != NULL) {
-    int * intp = (int *) thread_ret_ptr_receive;
-    printf("Receive thread returned: %d\n", *intp);
-    free(thread_ret_ptr_receive);
-  }
+  start_thread(&(threads[0]));
+  start_thread(&(threads[1]));
 
   return 0;
 }
