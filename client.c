@@ -10,9 +10,9 @@
 #define PERMISSIONS 0640
 #define DEFAULT_SERVER_KEY 42
 #define CLIENT_KEY 69
-#define CLIENT_2_KEY 70
 #define MSGSTR_LEN 256
 #define NUM_THREADS 2
+#define USAGE_STRING "Usage: receiving_client_key message_string\n"
 
 typedef struct data_st{
   long source; //source number
@@ -89,9 +89,9 @@ void * send_thread(void * arg) {
         send_message(message, *qID, *key, *client_key, other_client_key);
         if(strcmp(message, "exit") == 0) exit(0); //exit if you say to exit
       }
-      else printf("Usage: receiving_client_key message_string\n");
+      else printf(USAGE_STRING);
     }
-    else printf("Usage: receiving_client_key message_string\n");
+    else printf(USAGE_STRING);
   }
 
   int * myretp = malloc(sizeof(int));
@@ -117,7 +117,7 @@ void * receive_thread(void * arg) {
       sleep(1);
     }
     else {
-      printf("Received message from server: %s\n", localbuf.data.msgstr);
+      printf("Received message from %ld: %s\n", localbuf.data.source, localbuf.data.msgstr);
       strncpy(localbuf.data.msgstr, "", MSGSTR_LEN);
     }
   }

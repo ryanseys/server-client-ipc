@@ -56,6 +56,7 @@ void send_message(char message[], int msgqid, long to, long from){
   new_msg.mtype = to; //reciever
   data_st ds;
   ds.source = from;
+  ds.dest = to;
   strncpy(ds.msgstr,message,MSGSTR_LEN);
   ds.msgstr[MSGSTR_LEN - 1] = '\0';
   new_msg.data = ds;
@@ -100,8 +101,9 @@ int main(int argc,char * argv[]){
 		//printf("Send messages to mtype: %d\n", key);
     //reads a message from the message queue and prints to console//
 		int sender = receive_message(qID, &localbuf_client1, key);
+    sender = localbuf_client1.data.dest;
     printf("Relaying message to %d\n", sender);
-    send_message(localbuf_client1.data.msgstr, qID, sender, key);
+    send_message(localbuf_client1.data.msgstr, qID, sender, localbuf_client1.data.source);
 	}
 
   /* Assuming that msqid has been obtained beforehand. */
