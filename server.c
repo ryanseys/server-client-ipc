@@ -1,25 +1,4 @@
-#include <sys/types.h>
-#include <sys/ipc.h>
-#include <sys/msg.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <errno.h>
-
-#define PERMISSIONS 0640
-#define MSGSTR_LEN 256
-#define DEFAULT_SERVER_KEY 42
-
-typedef struct data_st{
-  long source; //source number
-  long dest; //destination number
-  char msgstr[MSGSTR_LEN];
-} data_st;
-
-typedef struct msgbuf_st {
-   long mtype; /* A message type > 0. */
-   data_st data; /* Data */
-} msgbuf;
+#include "ipcserverclient.h"
 
 int create_msg_queue(int key){
 	int qID;
@@ -86,15 +65,12 @@ int main(int argc,char * argv[]){
 		printf("Failed to create queue.\n");
 		exit(-1); //failed
 	}
-	else {
-		printf("Creating a queue with key: %d\n", key);
-	}
 
 	msgbuf localbuf_client1;
   msgbuf localbuf_client2;
 
   printf("Server connected! Waiting for client to connect...\n");
-  printf("Connect client by running ./client %d\n", key);
+  printf("Connect client by running ./client %d new_client_key\n", key);
 
 	while((strcmp(localbuf_client1.data.msgstr, "exit") != 0) &&
         (strcmp(localbuf_client2.data.msgstr, "exit") != 0)) {

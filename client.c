@@ -1,29 +1,7 @@
-#include <sys/types.h>
-#include <sys/ipc.h>
-#include <sys/msg.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <errno.h>
-#include <pthread.h>
-
-#define PERMISSIONS 0640
-#define DEFAULT_SERVER_KEY 42
-#define CLIENT_KEY 69
-#define MSGSTR_LEN 256
+#include "ipcserverclient.h"
 #define NUM_THREADS 2
-#define USAGE_STRING "Usage: receiving_client_key message_string\n"
-
-typedef struct data_st{
-  long source; //source number
-  long dest; //destination number
-  char msgstr[MSGSTR_LEN];
-} data_st;
-
-typedef struct msgbuf_st {
-   long mtype; /* A message type > 0. */
-   data_st data; /* Data */
-} msgbuf;
+#define USAGE_STRING "Usage: receiving_client_key message_to_send\n"
+#define INIT_USAGE "Invalid arguments.\nUsage: ./client running_server_key new_client_key\n"
 
 //receives a message from the message queue and prints it to the console
 void receive_message(int msgqid, msgbuf * msgp, long mtype) {
@@ -61,13 +39,15 @@ void send_message(char message[], int msgqid, long to, long from, long to_client
 }
 
 void * send_thread(void * arg) {
+
   int * qID = arg;
   int * key = arg+sizeof(int);
   int * client_key = arg+sizeof(int)*2;
   int other_client_key;
 
+  printf("You are now connected as client %d\n%s", *client_key, USAGE_STRING);
+
   char buffer[MSGSTR_LEN];
-  //printf("In the send thread with arg %d.\n", *val);
 
   while(fgets(buffer, MSGSTR_LEN, stdin)) {
     if (buffer[strlen(buffer) - 1] == '\n') {
@@ -169,11 +149,15 @@ int main(int argc, char * argv[]) {
   if(argc == 3) { // get command line argument
     key = atoi(argv[1]);
     client_key = atoi(argv[2]);
+    if(!key || !client_key) {
+      printf(INIT_USAGE);
+      exit(-1);
+    }
     //printf("Trying to get queue (key: %d)\n", key);
     qID = msgget(key, 0); // 0 for making use of existing queue
   }
   else {
-    printf("Invalid arguments.\nUsage: ./client running_server_key new_client_key\n");
+    printf(INIT_USAGE);
     exit(-1);
   }
 
@@ -194,6 +178,5 @@ int main(int argc, char * argv[]) {
 
   start_thread(&(threads[0]));
   start_thread(&(threads[1]));
-
   return 0;
 }
