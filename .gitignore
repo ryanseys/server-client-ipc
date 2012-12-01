@@ -3,4 +3,5 @@ client
 threads
 Debug/*
 Makefile
+*.out
 client_zuwa*

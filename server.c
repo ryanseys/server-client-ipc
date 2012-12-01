@@ -1,5 +1,8 @@
 #include "ipcserverclient.h"
 
+#define USAGE_STRING "Invalid arguments.\nUsage: ./server new_server_key\n"
+#define INVALID_SERVER_KEY "Invalid server key. Please specify a positive integer.\n"
+
 int create_msg_queue(int key){
 	int qID;
 	// printf("%d\n",key);
@@ -52,12 +55,15 @@ int main(int argc,char * argv[]){
 	int key;
 	// 1st commandline argument = key of message queue
 	if(argc == 2){
-        //TODO: perform some type checking here
     key = atoi(argv[1]);
+    if(key <= 0) {
+      printf(INVALID_SERVER_KEY);
+      exit(-1);
+    }
     qID = create_msg_queue(key);
 	}
   else {
-    printf("Invalid arguments.\nUsage: ./server new_server_key\n");
+    printf(USAGE_STRING);
     exit(-1);
   }
 
@@ -69,13 +75,12 @@ int main(int argc,char * argv[]){
 	msgbuf localbuf_client1;
   msgbuf localbuf_client2;
 
-  printf("Server connected! Waiting for client to connect...\n");
+  printf("Server connected! Waiting for clients to connect...\n");
   printf("Connect client by running ./client %d new_client_key\n", key);
 
 	while((strcmp(localbuf_client1.data.msgstr, "exit") != 0) &&
         (strcmp(localbuf_client2.data.msgstr, "exit") != 0)) {
-		//printf("Send messages to mtype: %d\n", key);
-    //reads a message from the message queue and prints to console//
+    //reads a message from the message queue and prints to console
 		int sender = receive_message(qID, &localbuf_client1, key);
     sender = localbuf_client1.data.dest;
     printf("Relaying message to %d\n", sender);
@@ -84,7 +89,6 @@ int main(int argc,char * argv[]){
 
   /* Assuming that msqid has been obtained beforehand. */
   if (msgctl(qID, IPC_RMID, NULL) == -1) {
-  /* As an example for checking errno. */
     if (errno == EIDRM) {
       fprintf(stderr, "Message queue already removed.\n");
     }

@@ -1,4 +1,5 @@
 #include "ipcserverclient.h"
+
 #define NUM_THREADS 2
 #define USAGE_STRING "Usage: receiving_client_key message_to_send\n"
 #define INIT_USAGE "Invalid arguments.\nUsage: ./client running_server_key new_client_key\n"
@@ -166,7 +167,7 @@ int main(int argc, char * argv[]) {
     exit(-1);
   }
 
-  // vars = [qID, key]
+  // vars = [qID, key, client_key]
   vars[0] = qID;
   vars[1] = key;
   vars[2] = client_key;
