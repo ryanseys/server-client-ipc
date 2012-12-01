@@ -2,7 +2,7 @@
 
 #define NUM_THREADS 2
 #define USAGE_STRING "Usage: receiving_client_key message_to_send\n"
-#define INIT_USAGE "Invalid arguments.\nUsage: ./client running_server_key new_client_key\n"
+#define INIT_USAGE "Invalid arguments.\nUsage: ./client.out running_server_key new_client_key\n"
 
 //receives a message from the message queue and prints it to the console
 void receive_message(int msgqid, msgbuf * msgp, long mtype) {

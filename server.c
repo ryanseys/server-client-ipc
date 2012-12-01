@@ -1,6 +1,6 @@
 #include "ipcserverclient.h"
 
-#define USAGE_STRING "Invalid arguments.\nUsage: ./server new_server_key\n"
+#define USAGE_STRING "Invalid arguments.\nUsage: ./server.out new_server_key\n"
 #define INVALID_SERVER_KEY "Invalid server key. Please specify a positive integer.\n"
 
 int create_msg_queue(int key){
@@ -14,7 +14,7 @@ int create_msg_queue(int key){
 }
 
 //receives a message from the message queue and prints it to the console
-int receive_message(int msgqid, msgbuf * msgp, long mtype){
+void receive_message(int msgqid, msgbuf * msgp, long mtype){
 	int bytesRead = msgrcv(msgqid, msgp, sizeof(struct data_st), mtype, 0);
 	if (bytesRead == -1) {
 		if (errno == EIDRM) {
@@ -26,9 +26,7 @@ int receive_message(int msgqid, msgbuf * msgp, long mtype){
 	else{
 		//printf("Received %d bytes from message queue.\n", bytesRead);
 		//printf("Message payload: Source: %ld\n", msgp->data.source);
-		printf("Message from %ld to %ld: %s\n",
-      msgp->data.source, msgp->data.dest, msgp->data.msgstr);
-    return msgp->data.source;
+		//printf("Message from %ld to %ld: %s\n", msgp->data.source, msgp->data.dest, msgp->data.msgstr);
 	}
 }
 
@@ -76,15 +74,22 @@ int main(int argc,char * argv[]){
   msgbuf localbuf_client2;
 
   printf("Server connected! Waiting for clients to connect...\n");
-  printf("Connect client by running ./client %d new_client_key\n", key);
+  printf("Connect client by running ./client.out %d new_client_key\n", key);
 
 	while((strcmp(localbuf_client1.data.msgstr, "exit") != 0) &&
         (strcmp(localbuf_client2.data.msgstr, "exit") != 0)) {
     //reads a message from the message queue and prints to console
-		int sender = receive_message(qID, &localbuf_client1, key);
-    sender = localbuf_client1.data.dest;
-    printf("Relaying message to %d\n", sender);
-    send_message(localbuf_client1.data.msgstr, qID, sender, localbuf_client1.data.source);
+		receive_message(qID, &localbuf_client1, key);
+    int to = localbuf_client1.data.dest;
+    int from = localbuf_client1.data.source;
+    //if the message is for the server
+    if(to == key) {
+      printf("Received message from %d: %s\n", from, localbuf_client1.data.msgstr);
+    }
+    else {
+      printf("Relaying message to %d\n", to);
+      send_message(localbuf_client1.data.msgstr, qID, to, from);
+    }
 	}
 
   /* Assuming that msqid has been obtained beforehand. */
