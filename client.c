@@ -81,9 +81,9 @@ void * send_thread(void * arg) {
     char numberbuff[255];
     char messagebuff[255];
     pos = strcspn(input, space);
-    if(pos != NULL) {
+    if(pos) {
       other_client_key = atoi(strncpy(numberbuff, input, pos));
-      if(other_client_key != NULL) {
+      if(other_client_key) {
         char * message = buffer+pos+1;
         printf("Sending %s to %d\n", message, other_client_key);
         send_message(message, *qID, *key, *client_key, other_client_key);
