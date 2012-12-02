@@ -9,6 +9,10 @@ all:
 	@echo "Compiled $(OUT1).c to $(OUT1).out successfully!"
 	@$(CC) -o $(OUT2).out $(OUT2).c
 	@echo "Compiled $(OUT2).c to $(OUT2).out successfully!"
+	@$(CC) -o $(OUT3).out $(OUT3).c
+	@echo "Compiled $(OUT3).c to $(OUT3).out successfully!"
+	@$(CC) -o $(OUT4).out $(OUT4).c
+	@echo "Compiled $(OUT4).c to $(OUT4).out successfully!"
 run: $(OUT1).out $(OUT2).out
 	@echo "Running...\n"
 	@./$(OUT1)
