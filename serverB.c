@@ -30,7 +30,10 @@ int create_msg_queue(int key){
 	return qID;
 }
 
-//receives a message from the message queue and prints it to the console
+/*
+	receives a character from the message queue and stores it in the local buffer
+	Returns 0, if it contains a '\0' char
+*/
 int receive_message(int msgqid, msgbuf * msgp, long mtype){
 	int bytesRead = msgrcv(msgqid, msgp, sizeof(struct data_st), mtype, 0);
 	if (bytesRead == -1) {
@@ -41,10 +44,9 @@ int receive_message(int msgqid, msgbuf * msgp, long mtype){
 		exit(EXIT_FAILURE);
 	}
 	else{
-		//printf("Received %d bytes from message queue.\n", bytesRead);
-		//printf("Message payload: Source: %ld\n", msgp->data.source);
-		printf("Message from %ld: %s\n", msgp->data.source, msgp->data.msgstr);
-    return msgp->data.source;
+		
+		// if(strcmp(msgp->data.msgstr[]))
+     	return msgp->data.source;
 	}
 }
 
@@ -68,6 +70,7 @@ void send_message(char message[], int msgqid, long to, long from){
 int main(int argc,char * argv[]){
 	int qID;
 	int key;
+	char message[MSGSTR_LEN];
 	// 1st commandline argument = key of message queue
 	if(argc < 2){
 		key = DEFAULT_SERVER_KEY;
@@ -87,17 +90,35 @@ int main(int argc,char * argv[]){
 	}
 
 	msgbuf localbuf_client1;
-  msgbuf localbuf_client2;
+	msgbuf tempbuf;
+  	//msgbuf localbuf_client2;
 
-  printf("Server connected! Waiting for client to connect...\n");
-  printf("Connect client by running ./client %d\n", key);
+	printf("Server connected! Waiting for client to connect...\n");
+	printf("Connect client by running ./client %d\n", key);
 
-	while((strcmp(localbuf_client1.data.msgstr, "exit") != 0) && (strcmp(localbuf_client1.data.msgstr, "exit") != 0)){
+	while((strcmp(localbuf_client1.data.msgstr, "exit") != 0)){
 		//printf("Send messages to mtype: %d\n", key);
-		int sender = receive_message(qID, &localbuf_client1, key); //reads a message from the message queue and prints to console
-    printf("Relaying message to %d\n", sender);
-    send_message(localbuf_client1.data.msgstr, qID, sender, key);
+		int sender = receive_message(qID, &tempbuf, key); //reads a message from the message queue and stores in local buffer
+    	strncpy(message,tempbuf.data.msgstr,1);  //copy the sent character from temporary buffer to message array
+
+    	localbuf_client1.data.source = key;  //set local buffer source id 
+    	strcat(localbuf_client1.data.msgstr, message);  //concatenate character in message to local buffer
+
+    	if(strcmp(message,"\0") == 0){ //if the last concatenated message was a null string
+    		printf("Received message from client: %s\n", localbuf_client1.data.msgstr);
+    		printf("Relaying message to client...\n");
+               
+            send_message(localbuf_client1.data.msgstr, qID, sender, key);
+    		strcpy(localbuf_client1.data.msgstr,""); //clean up local buffer 
+    	}
+    	//printf("Relaying message to %d\n", sender);
+    	//send_message(localbuf_client1.data.msgstr, qID, sender, key);
+    	
 	}
+	//print message in buffer
+	printf("message received: %s\n",localbuf_client1.data.msgstr);
+
+
 
   /* Assuming that msqid has been obtained beforehand. */
   if (msgctl(qID, IPC_RMID, NULL) == -1) {
