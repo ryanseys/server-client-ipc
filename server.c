@@ -94,32 +94,46 @@ int main(int argc,char * argv[]){
       client_msg_buffs[0].data.dest = to;
       client_msg_buffs[0].data.source = from;
       strncpy(client_msg_buffs[0].data.msgstr, message, 1);
+      clients[current_num_clients] = from;
       current_num_clients++;
     }
     else {
       int i = 0;
       int buff = -1;
       while(i < current_num_clients) {
-        if(clients[i] != from) buff = i;
+        if(clients[i] == from) buff = i;
         i++;
       }
       if(buff != -1) {
+        client_msg_buffs[buff].data.dest = to;
+        client_msg_buffs[buff].data.source = from;
         strcat(client_msg_buffs[buff].data.msgstr, message);
         if(strcmp(message, "\0") == 0) {
           printf("Message: %s\n", client_msg_buffs[buff].data.msgstr);
+            if(client_msg_buffs[buff].data.dest == key) {
+              printf("Received message from %ld for %ld: %s\n",
+                client_msg_buffs[buff].data.source,
+                client_msg_buffs[buff].data.dest,
+                client_msg_buffs[buff].data.msgstr);
+            }
+            else {
+              printf("Relaying message to %ld from %ld: %s\n",
+                client_msg_buffs[buff].data.dest,
+                client_msg_buffs[buff].data.source,
+                client_msg_buffs[buff].data.msgstr);
+              send_message(client_msg_buffs[buff].data.msgstr, qID, client_msg_buffs[buff].data.dest, client_msg_buffs[buff].data.source);
+            }
           strcpy(client_msg_buffs[buff].data.msgstr, "");
         }
       }
+      else {
+        client_msg_buffs[current_num_clients].data.dest = to;
+        client_msg_buffs[current_num_clients].data.source = from;
+        strncpy(client_msg_buffs[current_num_clients].data.msgstr, message, 1);
+        clients[current_num_clients] = from;
+        current_num_clients++;
+      }
     }
-    //if the message is for the server
-    /*
-    if(to == key) {
-      printf("Received message from %d: %s\n", from, message);
-    }
-    else {
-      printf("Relaying message to %d from %d: %s\n", to,from, message);
-      send_message(message, qID, to, from);
-    }*/
 	}
 
   /* Assuming that msqid has been obtained beforehand. */

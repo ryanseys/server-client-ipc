@@ -6,7 +6,7 @@
 
 //receives a message from the message queue and prints it to the console
 void receive_message(int msgqid, msgbuf * msgp, long mtype) {
-  int bytesRead = msgrcv(msgqid,msgp,sizeof(struct data_st),mtype,IPC_NOWAIT);
+  int bytesRead = msgrcv(msgqid, msgp, sizeof(struct data_st), mtype, 0);
   if (bytesRead == -1) {
     if (errno == EIDRM) {
       fprintf(stderr, "Message queue removed while waiting!\n");
@@ -24,10 +24,10 @@ void receive_message(int msgqid, msgbuf * msgp, long mtype) {
 //sends a message to the client via the messsage queue
 void send_message(char message[MSGSTR_LEN], int msgqid, long to, long from, long to_client){
   msgbuf new_msg;
-  new_msg.mtype = to; //reciever
+  new_msg.mtype = to; //reciever server
   data_st ds;
   ds.source = from;
-  ds.dest = to_client;
+  ds.dest = to_client; //receiver client
   char * null = "\0";
   int length = strlen(message);
   if(MSGSTR_LEN < length) length = MSGSTR_LEN;
@@ -58,8 +58,6 @@ void * send_thread(void * arg) {
   int * key = arg+sizeof(int);
   int * client_key = arg+sizeof(int)*2;
   int other_client_key;
-  //send connect message
-  //send_message(CONNECT_MSG, *qID, *key, *client_key, *key);
 
   printf("You are now connected as client %d\n%s", *client_key, USAGE_STRING);
 
@@ -109,13 +107,8 @@ void * receive_thread(void * arg) {
   localbuf.mtype = *client_key;
   while(1) {
     receive_message(*qID, &localbuf, *client_key);
-    if(strcmp(localbuf.data.msgstr, "") == 0) {
-      sleep(1);
-    }
-    else {
-      printf("Received message from %ld: %s\n", localbuf.data.source, localbuf.data.msgstr);
-      strncpy(localbuf.data.msgstr, "", MSGSTR_LEN);
-    }
+    printf("Received message from %ld: %s\n", localbuf.data.source, localbuf.data.msgstr);
+    strncpy(localbuf.data.msgstr, "", MSGSTR_LEN);
   }
 
   int * myretp = malloc(sizeof(int));
@@ -186,7 +179,6 @@ int main(int argc, char * argv[]) {
   vars[0] = qID;
   vars[1] = key;
   vars[2] = client_key;
-  //printf("Message queue got (key: %d)\n", key);
 
   //create sender thread
   create_thread(&(threads[0]), vars, 1);
