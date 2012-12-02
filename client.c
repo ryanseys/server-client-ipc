@@ -28,8 +28,20 @@ void send_message(char message[], int msgqid, long to, long from, long to_client
   data_st ds;
   ds.source = from;
   ds.dest = to_client;
-  strncpy(ds.msgstr,message,MSGSTR_LEN);
-  ds.msgstr[MSGSTR_LEN - 1] = '\0';
+  char * null = "\0";
+  int length = strlen(message);
+  int i;
+  //send a character at a time
+  for(i = 0; i < length; i++) {
+    strncpy(ds.msgstr, &(message[i]), 1);
+    new_msg.data = ds;
+    int ret = msgsnd(msgqid, (void *) &new_msg, sizeof(data_st), IPC_NOWAIT);
+    if (ret == -1) {
+      perror("msgsnd: Error attempting to send message!");
+      exit(EXIT_FAILURE);
+    }
+  }
+  strncpy(ds.msgstr, null, 1);
   new_msg.data = ds;
 
   int ret = msgsnd(msgqid, (void *) &new_msg, sizeof(data_st), IPC_NOWAIT);
@@ -45,6 +57,8 @@ void * send_thread(void * arg) {
   int * key = arg+sizeof(int);
   int * client_key = arg+sizeof(int)*2;
   int other_client_key;
+  //send connect message
+  //send_message(CONNECT_MSG, *qID, *key, *client_key, *key);
 
   printf("You are now connected as client %d\n%s", *client_key, USAGE_STRING);
 
@@ -144,7 +158,7 @@ int main(int argc, char * argv[]) {
   int qID;
   int key;
   int client_key;
-  int vars[2];
+  int vars[3];
   char * input;
   // 1st commandline argument = key of message queue
   if(argc == 3) { // get command line argument

@@ -9,6 +9,7 @@
 
 #define PERMISSIONS 0640
 #define MSGSTR_LEN 256
+#define CONNECT_MSG "::connect::"
 
 typedef struct data_st{
   long source; //source number

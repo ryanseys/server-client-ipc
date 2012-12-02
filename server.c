@@ -2,6 +2,7 @@
 
 #define USAGE_STRING "Invalid arguments.\nUsage: ./server.out new_server_key\n"
 #define INVALID_SERVER_KEY "Invalid server key. Please specify a positive integer.\n"
+#define MAX_CLIENTS 2
 
 int create_msg_queue(int key){
 	int qID;
@@ -15,13 +16,13 @@ int create_msg_queue(int key){
 
 //receives a message from the message queue and prints it to the console
 void receive_message(int msgqid, msgbuf * msgp, long mtype){
-	int bytesRead = msgrcv(msgqid, msgp, sizeof(struct data_st), mtype, 0);
+  int bytesRead = msgrcv(msgqid, msgp, sizeof(struct data_st), mtype, 0);
 	if (bytesRead == -1) {
 		if (errno == EIDRM) {
 			fprintf(stderr, "Message queue removed while waiting!\n");
 		}
-		perror("msgrcv: Error while attempting to receive message...\n");
-		exit(EXIT_FAILURE);
+		//perror("msgrcv: Error while attempting to receive message...\n");
+		//exit(EXIT_FAILURE);
 	}
 	else{
 		//printf("Received %d bytes from message queue.\n", bytesRead);
@@ -51,6 +52,10 @@ void send_message(char message[], int msgqid, long to, long from){
 int main(int argc,char * argv[]){
 	int qID;
 	int key;
+  int clients[MAX_CLIENTS];
+  int current_num_clients = 0;
+  int i;
+  msgbuf client_msg_buffs[MAX_CLIENTS];
 	// 1st commandline argument = key of message queue
 	if(argc == 2){
     key = atoi(argv[1]);
@@ -70,26 +75,49 @@ int main(int argc,char * argv[]){
 		exit(-1); //failed
 	}
 
-	msgbuf localbuf_client1;
-  msgbuf localbuf_client2;
-
   printf("Server connected! Waiting for clients to connect...\n");
   printf("Connect client by running ./client.out %d new_client_key\n", key);
 
-	while((strcmp(localbuf_client1.data.msgstr, "exit") != 0) &&
-        (strcmp(localbuf_client2.data.msgstr, "exit") != 0)) {
+	while(1) {
     //reads a message from the message queue and prints to console
-		receive_message(qID, &localbuf_client1, key);
-    int to = localbuf_client1.data.dest;
-    int from = localbuf_client1.data.source;
-    //if the message is for the server
-    if(to == key) {
-      printf("Received message from %d: %s\n", from, localbuf_client1.data.msgstr);
+    int to;
+    int from;
+    char message[MSGSTR_LEN];
+    msgbuf tempbuf;
+    receive_message(qID, &tempbuf, key);
+
+    to = tempbuf.data.dest;
+    from = tempbuf.data.source;
+    strncpy(message, tempbuf.data.msgstr, 1);
+
+    if(current_num_clients == 0) {
+      client_msg_buffs[0].data.dest = to;
+      client_msg_buffs[0].data.source = from;
+      strncpy(client_msg_buffs[0].data.msgstr, message, 1);
+      current_num_clients++;
     }
     else {
-      printf("Relaying message to %d\n", to);
-      send_message(localbuf_client1.data.msgstr, qID, to, from);
+      int i = 0;
+      int buff = -1;
+      while(i < current_num_clients) {
+        if(clients[i] != from) buff = i;
+        i++;
+      }
+      if(buff != -1) {
+        strcat(client_msg_buffs[buff].data.msgstr, message);
+        if(strcmp(message, "\0") == 0) printf("Message: %s\n", client_msg_buffs[buff].data.msgstr);
+      }
     }
+
+    //if the message is for the server
+    /*
+    if(to == key) {
+      printf("Received message from %d: %s\n", from, message);
+    }
+    else {
+      printf("Relaying message to %d from %d: %s\n", to,from, message);
+      send_message(message, qID, to, from);
+    }*/
 	}
 
   /* Assuming that msqid has been obtained beforehand. */
