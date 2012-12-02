@@ -170,7 +170,6 @@ int main(int argc, char * argv[]) {
       printf(INIT_USAGE);
       exit(-1);
     }
-    //printf("Trying to get queue (key: %d)\n", key);
     qID = msgget(key, 0); // 0 for making use of existing queue
   }
   else {
