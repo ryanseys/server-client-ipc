@@ -96,7 +96,7 @@ Running Part D
 ** NEW ** features:
  * Connect messages displayed on server when a client connects.
  * Disconnect messages displayed on server when a client disconnects.
- * Global (public) messages sent to all currently connected clients.
+ * Global (public) messages sent to all currently connected clients when no recipient key is specified.
  * Support for multiple clients (more than two) up to the max limit specified in the code.
 
 Start Part D server:              $ make sd
@@ -116,13 +116,18 @@ To send a message, you must specify the recipient key (either server or client),
 that you want to send to that recipient. There are some examples below.
 
 ** NEW ** If you do not specify a recipient, it will go to everyone. This means that it will send the
-message to the server and the server will relay it to everyone.
+message to the server and the server will relay it to every connected client.
+
+e.g. from client 69 type:   hey how are you?
+
+  This will send the message "hey how are you?" to the server (key=42),
+  and the server will relay it to every client it currently has listed as connected.
+  This includes the sender, so the sender will recieve the message it sent to global.
 
 e.g. from client 69 type:   42 hello there how are you?
 
   This will send the message "hello there how are you?" to the server (key=42),
   and will print it on the server because the message was for the server.
-
 
 e.g. from client 69 type:   69 hello there how are you?
 
@@ -130,7 +135,6 @@ e.g. from client 69 type:   69 hello there how are you?
   and the server will then relay the message to client with key 69 (which in this
   case is the client we have currently running). Once client 69 recieves the message,
   it will print the message on the screen.
-
 
 e.g. from client 69 type:   123 hello there how are you?
 
