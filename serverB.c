@@ -23,7 +23,6 @@ typedef struct msgbuf_st {
 
 int create_msg_queue(int key){
 	int qID;
-	// printf("%d\n",key);
 	if ((qID = msgget(key, IPC_CREAT | PERMISSIONS)) == -1){
 		perror("mssget: Error creating msg queue \n");
 		exit(EXIT_FAILURE);
@@ -37,16 +36,15 @@ int create_msg_queue(int key){
 */
 int receive_message(int msgqid, msgbuf * msgp, long mtype){
 	int bytesRead = msgrcv(msgqid, msgp, sizeof(struct data_st), mtype, 0);
-	if (bytesRead == -1) {
-		if (errno == EIDRM) {
+	if(bytesRead == -1) {
+		if(errno == EIDRM) {
 			fprintf(stderr, "Message queue removed while waiting!\n");
 		}
 		perror("msgrcv: Error while attempting to receive message...\n");
 		exit(EXIT_FAILURE);
 	}
-	else{
-		// if(strcmp(msgp->data.msgstr[]))
-     	return msgp->data.source;
+	else {
+    return msgp->data.source;
 	}
 }
 
@@ -105,7 +103,6 @@ int main(int argc,char * argv[]){
 
 	msgbuf localbuf_client1;
 	msgbuf tempbuf;
-  	//msgbuf localbuf_client2;
 
 	printf("Server connected! Waiting for client to connect...\n");
 	printf("Connect client by running ./client %d\n", key);
@@ -119,19 +116,13 @@ int main(int argc,char * argv[]){
     	strcat(localbuf_client1.data.msgstr, message);  //concatenate character in message to local buffer
 
     	if(strcmp(message,"\0") == 0){ //if the last concatenated message was a null string
-    		printf("Received message from client: \"%s\"\n", localbuf_client1.data.msgstr);
-    		printf("Relaying message to client...\n");
+    		printf("Relaying \"%s\" to client...\n", localbuf_client1.data.msgstr);
             send_message(localbuf_client1.data.msgstr, qID, sender, key);
     		strcpy(localbuf_client1.data.msgstr,""); //clean up local buffer
     	}
-    	//printf("Relaying message to %d\n", sender);
-    	//send_message(localbuf_client1.data.msgstr, qID, sender, key);
-
 	}
 	//print message in buffer
 	printf("message received: %s\n",localbuf_client1.data.msgstr);
-
-
 
   /* Assuming that msqid has been obtained beforehand. */
   if (msgctl(qID, IPC_RMID, NULL) == -1) {
