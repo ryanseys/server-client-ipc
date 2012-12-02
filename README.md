@@ -43,6 +43,7 @@ You can also use the Makefile to run the projects just run:
 NOTE: Please notice that if you want to run an additional client, you must manually call the
 command for it instead of relying on the Makefile to start it.
 
+==============
 Running Part B
 ==============
 
@@ -56,6 +57,7 @@ the message will be printed on the server, and then sent back to the client (aga
 
 If you send "EXIT" as the message in the client to the server, it will quit the server and client.
 
+==============
 Running Part C
 ==============
 
@@ -90,6 +92,7 @@ e.g. from client 69 type:   123 hello there how are you?
   other running server in another process). Once client 123 recieves the message,
   it will print the message on the screen.
 
+==============
 Running Part D
 ==============
 
@@ -142,3 +145,6 @@ e.g. from client 69 type:   123 hello there how are you?
   and the server will then relay the message to client with key 123 (which is the
   other running server in another process). Once client 123 recieves the message,
   it will print the message on the screen.
+
+** NEW ** Pressing CTRL-C or CTRL-Z in the client will send a "quit" signal to the terminal,
+and this signal will be caught and used to send disconnect messages to the server, before quitting.
