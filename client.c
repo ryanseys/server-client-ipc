@@ -86,6 +86,8 @@ void * send_thread(void * arg) {
       else printf(USAGE_STRING);
     }
     else printf(USAGE_STRING);
+    strncpy(numberbuff, "", 255); //clear buffer
+    strncpy(messagebuff, "", 255); //clear buffer
   }
 
   int * myretp = malloc(sizeof(int));
