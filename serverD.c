@@ -112,6 +112,7 @@ int main(int argc,char * argv[]){
       pntr->source = from;
       strncpy(pntr->msgstr, message, 1);
       clients[current_num_clients] = from;
+      printf("clients[%d] = %d\n", current_num_clients, clients[current_num_clients]);
       current_num_clients++;
     }
     else {
@@ -139,6 +140,18 @@ int main(int argc,char * argv[]){
                 }
               }
               else printf("Received message from %ld: \"%s\"\n", pntr->source, pntr->msgstr);
+            }
+            else if(pntr->dest == 0) {
+              //to everyone
+              printf("Received message from %ld: \"%s\"\n", pntr->source, pntr->msgstr);
+              int j = 0;
+              while(j < current_num_clients) {
+                if(clients[j] != -1) {
+                  printf("Relaying message to %d from %ld: \"%s\"\n", clients[j], pntr->source, pntr->msgstr);
+                  send_message(pntr->msgstr, qID, clients[j], pntr->source);
+                }
+                j++;
+              }
             }
             else {
               printf("Relaying message to %ld from %ld: \"%s\"\n", pntr->dest, pntr->source, pntr->msgstr);

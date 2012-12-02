@@ -77,13 +77,18 @@ void * send_thread(void * arg) {
     pos = strcspn(input, space);
     if(pos) {
       other_client_key = atoi(strncpy(numberbuff, input, pos));
+      char * message;
       if(other_client_key) {
-        char * message = buffer+pos+1;
+        message = buffer+pos+1;
         printf("Sending \"%s\" to %d\n", message, other_client_key);
         send_message(message, *qID, *key, *client_key, other_client_key);
         if(strcmp(message, "exit") == 0) exit(0); //exit if you say to exit
       }
-      else printf("%s%s", "Invalid input!\n", USAGE_STRING);
+      else {
+        message = buffer;
+        send_message(message, *qID, *key, *client_key, 0);
+        //printf("%s%s", "Invalid input!\n", USAGE_STRING);
+      }
     }
     else printf(USAGE_STRING);
     strncpy(numberbuff, "", 255); //clear buffer
