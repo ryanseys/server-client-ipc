@@ -25,7 +25,7 @@ typedef struct msgbuf_st {
 
 //receives a message from the message queue and prints it to the console
 void receive_message(int msgqid, msgbuf * msgp, long mtype) {
-  int bytesRead = msgrcv(msgqid,msgp,sizeof(struct data_st),mtype,IPC_NOWAIT);
+  int bytesRead = msgrcv(msgqid,msgp,sizeof(struct data_st),mtype,0);
   if (bytesRead == -1) {
     if (errno == EIDRM) {
       fprintf(stderr, "Message queue removed while waiting!\n");
@@ -118,16 +118,28 @@ void * receive_thread(void * arg) {
   int * key = arg+sizeof(int);
   //printf("In the receive thread with arg %d.\n", *val);
 
+  int to;
+  int from;
+  char message[MSGSTR_LEN];
+  msgbuf tempbuf;
   msgbuf localbuf;
   localbuf.mtype = CLIENT_KEY;
+
   while(1) {
-    receive_message(*qID, &localbuf, CLIENT_KEY);
-    if(strcmp(localbuf.data.msgstr, "") == 0) {
-      sleep(1);
-    }
-    else {
+    receive_message(*qID, &tempbuf, CLIENT_KEY);
+    // to =tempbuf.data.dest;
+    //from = tempbuf.data.source;
+
+    strncpy(message, tempbuf.data.msgstr, 1);
+    strcat(localbuf.data.msgstr, message);
+    if(strcmp(message,"\0") == 0){
+      printf("Message: %s\n", localbuf.data.msgstr);
       printf("Received message from server: %s\n", localbuf.data.msgstr);
-      strncpy(localbuf.data.msgstr, "", MSGSTR_LEN);
+      strcpy(localbuf.data.msgstr,""); //clean up local buffer 
+
+    }
+    else{
+      // sleep(1);
     }
   }
 
