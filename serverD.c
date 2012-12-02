@@ -1,4 +1,5 @@
 #include "ipcserverclient.h"
+#include <signal.h>
 
 #define USAGE_STRING "Invalid arguments.\nUsage: ./serverD.out new_server_key\n"
 #define INVALID_SERVER_KEY "Invalid server key. Please specify a positive integer.\n"
@@ -62,12 +63,14 @@ void send_message(char message[MSGSTR_LEN], int msgqid, long to, long from){
   }
 }
 
+
 int main(int argc,char * argv[]){
   int qID;
   int key;
   int clients[MAX_CLIENTS];
   int current_num_clients = 0;
   int i;
+
   msgbuf client_msg_buffs[MAX_CLIENTS];
   // 1st commandline argument = key of message queue
   if(argc == 2){

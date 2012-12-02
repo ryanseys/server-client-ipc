@@ -9,6 +9,7 @@
 #define PERMISSIONS 0640
 #define MSGSTR_LEN 256
 #define DEFAULT_SERVER_KEY 42
+#define EXIT_STRING "EXIT"
 
 typedef struct data_st{
 	long source;
@@ -44,7 +45,7 @@ int receive_message(int msgqid, msgbuf * msgp, long mtype){
 		exit(EXIT_FAILURE);
 	}
 	else{
-		
+
 		// if(strcmp(msgp->data.msgstr[]))
      	return msgp->data.source;
 	}
@@ -140,23 +141,23 @@ int main(int argc,char * argv[]){
 	printf("Server connected! Waiting for client to connect...\n");
 	printf("Connect client by running ./client %d\n", key);
 
-	while((strcmp(localbuf_client1.data.msgstr, "exit") != 0)){
+	while((strcmp(localbuf_client1.data.msgstr, EXIT_STRING) != 0)){
 		//printf("Send messages to mtype: %d\n", key);
 		int sender = receive_message(qID, &tempbuf, key); //reads a message from the message queue and stores in local buffer
     	strncpy(message,tempbuf.data.msgstr,1);  //copy the sent character from temporary buffer to message array
 
-    	localbuf_client1.data.source = key;  //set local buffer source id 
+    	localbuf_client1.data.source = key;  //set local buffer source id
     	strcat(localbuf_client1.data.msgstr, message);  //concatenate character in message to local buffer
 
     	if(strcmp(message,"\0") == 0){ //if the last concatenated message was a null string
     		printf("Received message from client: %s\n", localbuf_client1.data.msgstr);
     		printf("Relaying message to client...\n");
             send_message(localbuf_client1.data.msgstr, qID, sender, key);
-    		strcpy(localbuf_client1.data.msgstr,""); //clean up local buffer 
+    		strcpy(localbuf_client1.data.msgstr,""); //clean up local buffer
     	}
     	//printf("Relaying message to %d\n", sender);
     	//send_message(localbuf_client1.data.msgstr, qID, sender, key);
-    	
+
 	}
 	//print message in buffer
 	printf("message received: %s\n",localbuf_client1.data.msgstr);

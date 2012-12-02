@@ -161,7 +161,13 @@ void create_thread(pthread_t * thread, void * vars, int thread_type) {
   }
 }
 
+void printlol() {
+  //send_message("", *qID, *key, *client_key, *key);
+  exit(0);
+}
+
 int main(int argc, char * argv[]) {
+  signal(SIGINT, printlol);
   pthread_t threads[NUM_THREADS];
   int targs[NUM_THREADS];
   int i, ret, ret2;

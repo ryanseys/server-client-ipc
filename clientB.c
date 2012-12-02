@@ -12,6 +12,7 @@
 #define CLIENT_KEY 69
 #define MSGSTR_LEN 256
 #define NUM_THREADS 2
+#define EXIT_STRING "EXIT"
 
 typedef struct data_st{
   long source;
@@ -101,7 +102,7 @@ void * send_thread(void * arg) {
     }
     printf("Sending %s\n", buffer);
     send_message(buffer, *qID, *key, CLIENT_KEY);
-    if(strcmp(buffer, "exit") == 0) exit(0); //exit if you say to exit
+    if(strcmp(buffer, EXIT_STRING) == 0) exit(0); //exit if you say to exit
   }
 
   int * myretp = malloc(sizeof(int));
@@ -135,7 +136,7 @@ void * receive_thread(void * arg) {
     if(strcmp(message,"\0") == 0){
       printf("Message: %s\n", localbuf.data.msgstr);
       printf("Received message from server: %s\n", localbuf.data.msgstr);
-      strcpy(localbuf.data.msgstr,""); //clean up local buffer 
+      strcpy(localbuf.data.msgstr,""); //clean up local buffer
 
     }
     else{
