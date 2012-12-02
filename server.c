@@ -111,7 +111,6 @@ int main(int argc,char * argv[]){
         }
       }
     }
-theyeryea alksdalksdlkaskdaksdklasldkalskdk ask daklsdkaskdlaksdlkaslkdaks dl kakdsl askdl kaksdalk sdl kalksd laskldaskldlaskdalsdtheyeryea alksdalksdlkaskdaksdklasldkalskdk ask daklsdkaskdlaksdlkaslkdaks dl kakdsl askdl kaksdalk sdl kalksd laskldaskldlaskdalsdtheyeryea alksdalksdlkaskdaksdklasldkalskdk ask daklsdkaskdlaksdlkaslkdaks dl kakdsl askdl kaksdalk sdl kalksd laskldaskldlaskdalsd
     //if the message is for the server
     /*
     if(to == key) {
