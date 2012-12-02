@@ -127,11 +127,14 @@ int main(int argc,char * argv[]){
           //printf("Message: %s\n", client_msg_buffs[buff].data.msgstr);
             if(client_msg_buffs[buff].data.dest == key) {
               if(strcmp(client_msg_buffs[buff].data.msgstr, CONNECT_MSG) == 0) {
-                printf("Client %ld connected\n", client_msg_buffs[buff].data.source);
+                printf("CLIENT %ld CONNECTED\n", client_msg_buffs[buff].data.source);
               }
-              printf("Received message from %ld: %s\n",
-                client_msg_buffs[buff].data.source,
-                client_msg_buffs[buff].data.msgstr);
+              else if(strcmp(client_msg_buffs[buff].data.msgstr, DISCONNECT_MSG) == 0) {
+                printf("CLIENT %ld DISCONNECTED\n", client_msg_buffs[buff].data.source);
+              }
+              else printf("Received message from %ld: %s\n",
+                    client_msg_buffs[buff].data.source,
+                    client_msg_buffs[buff].data.msgstr);
             }
             else {
               printf("Relaying message to %ld from %ld: %s\n",

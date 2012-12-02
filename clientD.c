@@ -68,8 +68,8 @@ void * send_thread(void * arg) {
       buffer[strlen(buffer) - 1] = '\0';
     }
 
-    char* input = buffer;
-    char* space = " ";
+    char * input = buffer;
+    char * space = " ";
     int start = 0;
     int pos;
     char numberbuff[255];
@@ -162,12 +162,14 @@ void create_thread(pthread_t * thread, void * vars, int thread_type) {
 }
 
 void printlol() {
-  //send_message("", *qID, *key, *client_key, *key);
-  exit(0);
+
 }
 
 int main(int argc, char * argv[]) {
-  signal(SIGINT, printlol);
+
+// a definition mentioning inline
+
+
   pthread_t threads[NUM_THREADS];
   int targs[NUM_THREADS];
   int i, ret, ret2;
@@ -176,6 +178,15 @@ int main(int argc, char * argv[]) {
   int client_key;
   int vars[3];
   char * input;
+
+  inline void exiting() {
+    send_message(DISCONNECT_MSG, qID, key, client_key, key);
+    exit(0);
+  }
+
+  signal(SIGINT, exiting);
+  signal(SIGTSTP, exiting);
+
   // 1st commandline argument = key of message queue
   if(argc == 3) { // get command line argument
     key = atoi(argv[1]);
