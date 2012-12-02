@@ -1,7 +1,7 @@
 #include "ipcserverclient.h"
 
 #define NUM_THREADS 2
-#define USAGE_STRING "Usage: receiving_client_key message_to_send\n"
+#define USAGE_STRING "Usage: receiving_client_key message_to_send (Example: 42 hello )\n"
 #define INIT_USAGE "Invalid arguments.\nUsage: ./clientD.out running_server_key new_client_key\n"
 
 //receives a message from the message queue and prints it to the console
@@ -83,7 +83,7 @@ void * send_thread(void * arg) {
         send_message(message, *qID, *key, *client_key, other_client_key);
         if(strcmp(message, "exit") == 0) exit(0); //exit if you say to exit
       }
-      else printf(USAGE_STRING);
+      else printf("%s%s", "Invalid input!\n", USAGE_STRING);
     }
     else printf(USAGE_STRING);
     strncpy(numberbuff, "", 255); //clear buffer
