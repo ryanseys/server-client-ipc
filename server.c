@@ -124,9 +124,8 @@ int main(int argc,char * argv[]){
         if(strcmp(message, "\0") == 0) {
           printf("Message: %s\n", client_msg_buffs[buff].data.msgstr);
             if(client_msg_buffs[buff].data.dest == key) {
-              printf("Received message from %ld for %ld: %s\n",
+              printf("Received message from %ld: %s\n",
                 client_msg_buffs[buff].data.source,
-                client_msg_buffs[buff].data.dest,
                 client_msg_buffs[buff].data.msgstr);
             }
             else {
