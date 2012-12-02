@@ -2,7 +2,7 @@
 
 #define NUM_THREADS 2
 #define USAGE_STRING "Usage: receiving_client_key message_to_send\n"
-#define INIT_USAGE "Invalid arguments.\nUsage: ./client.out running_server_key new_client_key\n"
+#define INIT_USAGE "Invalid arguments.\nUsage: ./clientD.out running_server_key new_client_key\n"
 
 //receives a message from the message queue and prints it to the console
 void receive_message(int msgqid, msgbuf * msgp, long mtype) {
@@ -21,7 +21,7 @@ void receive_message(int msgqid, msgbuf * msgp, long mtype) {
   }
 }
 
-//sends a message to the client via the messsage queue
+//sends a message to the server via the messsage queue
 void send_message(char message[MSGSTR_LEN], int msgqid, long to, long from, long to_client){
   msgbuf new_msg;
   new_msg.mtype = to; //reciever server
@@ -58,6 +58,7 @@ void * send_thread(void * arg) {
   int * client_key = arg+sizeof(int)*2;
   int other_client_key;
 
+  send_message("", *qID, *key, *client_key, *key);
   printf("You are now connected as client %d\n%s", *client_key, USAGE_STRING);
 
   char buffer[MSGSTR_LEN];
