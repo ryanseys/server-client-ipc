@@ -105,12 +105,7 @@ int main(int argc,char * argv[]){
     to = tempbuf.data.dest;
     from = tempbuf.data.source;
     strncpy(message, tempbuf.data.msgstr, 1);
-    if(strcmp(message, "\0") == 0) {
-      printf("Client %d connected!\n", from);
-      strcpy(tempbuf.data.msgstr, "");
-    }
-    else if(current_num_clients == 0) {
-      printf("else if\n");
+    if(current_num_clients == 0) {
       client_msg_buffs[0].data.dest = to;
       client_msg_buffs[0].data.source = from;
       strncpy(client_msg_buffs[0].data.msgstr, message, 1);
@@ -118,7 +113,6 @@ int main(int argc,char * argv[]){
       current_num_clients++;
     }
     else {
-      printf("else\n");
       int i = 0;
       int buff = -1;
       while(i < current_num_clients) {
@@ -130,8 +124,11 @@ int main(int argc,char * argv[]){
         client_msg_buffs[buff].data.source = from;
         strcat(client_msg_buffs[buff].data.msgstr, message);
         if(strcmp(message, "\0") == 0) {
-          printf("Message: %s\n", client_msg_buffs[buff].data.msgstr);
+          //printf("Message: %s\n", client_msg_buffs[buff].data.msgstr);
             if(client_msg_buffs[buff].data.dest == key) {
+              if(strcmp(client_msg_buffs[buff].data.msgstr, CONNECT_MSG) == 0) {
+                printf("Client %ld connected\n", client_msg_buffs[buff].data.source);
+              }
               printf("Received message from %ld: %s\n",
                 client_msg_buffs[buff].data.source,
                 client_msg_buffs[buff].data.msgstr);

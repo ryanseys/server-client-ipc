@@ -58,7 +58,7 @@ void * send_thread(void * arg) {
   int * client_key = arg+sizeof(int)*2;
   int other_client_key;
 
-  send_message("", *qID, *key, *client_key, *key);
+  send_message(CONNECT_MSG, *qID, *key, *client_key, *key);
   printf("You are now connected as client %d\n%s", *client_key, USAGE_STRING);
 
   char buffer[MSGSTR_LEN];
