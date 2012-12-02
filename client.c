@@ -53,7 +53,6 @@ void send_message(char message[MSGSTR_LEN], int msgqid, long to, long from, long
 }
 
 void * send_thread(void * arg) {
-
   int * qID = arg;
   int * key = arg+sizeof(int);
   int * client_key = arg+sizeof(int)*2;
@@ -103,14 +102,28 @@ void * receive_thread(void * arg) {
   int * qID = arg;
   int * key = arg+sizeof(int);
   int * client_key = arg+sizeof(int)*2;
-  //printf("In the receive thread with arg %d.\n", *val);
 
-  msgbuf localbuf;
-  localbuf.mtype = *client_key;
+  int to;
+  int from;
+  char message[MSGSTR_LEN];
+  msgbuf tempbuf;
+  tempbuf.mtype = *client_key;
+
+  msgbuf messagebuf;
   while(1) {
-    receive_message(*qID, &localbuf, *client_key);
-    printf("Received message from %ld: %s\n", localbuf.data.source, localbuf.data.msgstr);
-    strncpy(localbuf.data.msgstr, "", MSGSTR_LEN);
+    receive_message(*qID, &tempbuf, *client_key);
+
+    to = tempbuf.data.dest;
+    from = tempbuf.data.source;
+    strncpy(message, tempbuf.data.msgstr, 1);
+
+    messagebuf.data.dest = to;
+    messagebuf.data.source = from;
+    strcat(messagebuf.data.msgstr, message);
+    if(strcmp(message, "\0") == 0) {
+      printf("Received message from %ld: %s\n", messagebuf.data.source, messagebuf.data.msgstr);
+      strncpy(messagebuf.data.msgstr, "", MSGSTR_LEN);
+    }
   }
 
   int * myretp = malloc(sizeof(int));
