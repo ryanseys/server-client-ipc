@@ -104,11 +104,13 @@ int main(int argc,char * argv[]){
 
     to = tempbuf.data.dest;
     from = tempbuf.data.source;
+    data_st * pntr;
     strncpy(message, tempbuf.data.msgstr, 1);
     if(current_num_clients == 0) {
-      client_msg_buffs[0].data.dest = to;
-      client_msg_buffs[0].data.source = from;
-      strncpy(client_msg_buffs[0].data.msgstr, message, 1);
+      pntr = &(client_msg_buffs[0].data);
+      pntr->dest = to;
+      pntr->source = from;
+      strncpy(pntr->msgstr, message, 1);
       clients[current_num_clients] = from;
       current_num_clients++;
     }
@@ -120,36 +122,36 @@ int main(int argc,char * argv[]){
         i++;
       }
       if(buff != -1) {
-        client_msg_buffs[buff].data.dest = to;
-        client_msg_buffs[buff].data.source = from;
-        strcat(client_msg_buffs[buff].data.msgstr, message);
+        pntr = &(client_msg_buffs[buff].data);
+        pntr->dest = to;
+        pntr->source = from;
+        strcat(pntr->msgstr, message);
         if(strcmp(message, "\0") == 0) {
-          //printf("Message: %s\n", client_msg_buffs[buff].data.msgstr);
-            if(client_msg_buffs[buff].data.dest == key) {
-              if(strcmp(client_msg_buffs[buff].data.msgstr, CONNECT_MSG) == 0) {
-                printf("CLIENT %ld CONNECTED\n", client_msg_buffs[buff].data.source);
+          //printf("Message: %s\n", pntr->msgstr);
+            if(pntr->dest == key) {
+              if(strcmp(pntr->msgstr, CONNECT_MSG) == 0) {
+                printf("CLIENT %ld CONNECTED\n", pntr->source);
               }
-              else if(strcmp(client_msg_buffs[buff].data.msgstr, DISCONNECT_MSG) == 0) {
-                printf("CLIENT %ld DISCONNECTED\n", client_msg_buffs[buff].data.source);
+              else if(strcmp(pntr->msgstr, DISCONNECT_MSG) == 0) {
+                printf("CLIENT %ld DISCONNECTED\n", pntr->source);
+                while(i < current_num_clients) {
+                  if(clients[i] == pntr->source) clients[i] = -1;
+                }
               }
-              else printf("Received message from %ld: %s\n",
-                    client_msg_buffs[buff].data.source,
-                    client_msg_buffs[buff].data.msgstr);
+              else printf("Received message from %ld: \"%s\"\n", pntr->source, pntr->msgstr);
             }
             else {
-              printf("Relaying message to %ld from %ld: %s\n",
-                client_msg_buffs[buff].data.dest,
-                client_msg_buffs[buff].data.source,
-                client_msg_buffs[buff].data.msgstr);
-              send_message(client_msg_buffs[buff].data.msgstr, qID, client_msg_buffs[buff].data.dest, client_msg_buffs[buff].data.source);
+              printf("Relaying message to %ld from %ld: \"%s\"\n", pntr->dest, pntr->source, pntr->msgstr);
+              send_message(pntr->msgstr, qID, pntr->dest, pntr->source);
             }
-          strcpy(client_msg_buffs[buff].data.msgstr, "");
+          strncpy(pntr->msgstr, "", MSGSTR_LEN);
         }
       }
       else {
-        client_msg_buffs[current_num_clients].data.dest = to;
-        client_msg_buffs[current_num_clients].data.source = from;
-        strncpy(client_msg_buffs[current_num_clients].data.msgstr, message, 1);
+        pntr = &(client_msg_buffs[current_num_clients].data);
+        pntr->dest = to;
+        pntr->source = from;
+        strncpy(pntr->msgstr, message, 1);
         clients[current_num_clients] = from;
         current_num_clients++;
       }

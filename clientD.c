@@ -79,7 +79,7 @@ void * send_thread(void * arg) {
       other_client_key = atoi(strncpy(numberbuff, input, pos));
       if(other_client_key) {
         char * message = buffer+pos+1;
-        printf("Sending %s to %d\n", message, other_client_key);
+        printf("Sending \"%s\" to %d\n", message, other_client_key);
         send_message(message, *qID, *key, *client_key, other_client_key);
         if(strcmp(message, "exit") == 0) exit(0); //exit if you say to exit
       }
@@ -122,7 +122,7 @@ void * receive_thread(void * arg) {
     messagebuf.data.source = from;
     strcat(messagebuf.data.msgstr, message);
     if(strcmp(message, "\0") == 0) {
-      printf("Received message from %ld: %s\n", messagebuf.data.source, messagebuf.data.msgstr);
+      printf("Received message from %ld: \"%s\"\n", messagebuf.data.source, messagebuf.data.msgstr);
       strncpy(messagebuf.data.msgstr, "", MSGSTR_LEN);
     }
   }
