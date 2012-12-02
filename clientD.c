@@ -82,7 +82,7 @@ void * send_thread(void * arg) {
         message = buffer+pos+1;
         printf("Sending \"%s\" to %d\n", message, other_client_key);
         send_message(message, *qID, *key, *client_key, other_client_key);
-        if(strcmp(message, "exit") == 0) exit(0); //exit if you say to exit
+        if(strcmp(message, EXIT_STR) == 0) exit(0); //exit if you say to exit
       }
       else {
         message = buffer;

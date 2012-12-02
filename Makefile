@@ -1,6 +1,6 @@
 CC=gcc
-OUT1=server
-OUT2=client
+OUT1=serverC
+OUT2=clientC
 OUT3=serverB
 OUT4=clientB
 OUT5=serverD
@@ -20,26 +20,22 @@ all:
 	@echo "Compiled $(OUT5).c to $(OUT5).out successfully!"
 	@$(CC) $(CFLAGS) -o $(OUT6).out $(OUT6).c
 	@echo "Compiled $(OUT6).c to $(OUT6).out successfully!"
-run: $(OUT1).out $(OUT2).out
-	@echo "Running...\n"
-	@./$(OUT1)
-	@./$(OUT2)
-s:
+sc:
 	@$(CC) $(CFLAGS) -o $(OUT1).out $(OUT1).c
 	@echo "Compiled $(OUT1).c to $(OUT1).out successfully!"
 	@echo "Running ./$(OUT1).out 42"
 	@./$(OUT1).out 42
-c:
+cc:
 	@$(CC) $(CFLAGS) -o $(OUT2).out $(OUT2).c
 	@echo "Compiled $(OUT2).c to $(OUT2).out successfully!"
 	@echo "Running ./$(OUT2).out 42 69"
 	@./$(OUT2).out 42 69
-partB_s:
+sb:
 	@$(CC) $(CFLAGS) -o $(OUT3).out $(OUT3).c
 	@echo "Compiled $(OUT3).c to $(OUT3).out successfully!"
 	@echo "Running ./$(OUT3).out 42"
 	@./$(OUT3).out 42
-partB_c:
+cb:
 	@$(CC) $(CFLAGS) -o $(OUT4).out $(OUT4).c
 	@echo "Compiled $(OUT4).c to $(OUT4).out successfully!"
 	@echo "Running ./$(OUT4).out 42"

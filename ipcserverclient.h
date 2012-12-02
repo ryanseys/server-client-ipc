@@ -11,6 +11,7 @@
 #define MSGSTR_LEN 256
 #define CONNECT_MSG "::CONNECT::"
 #define DISCONNECT_MSG "::DISCONNECT::"
+#define EXIT_STR "EXIT"
 
 typedef struct data_st{
   long source; //source number
