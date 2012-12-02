@@ -3,6 +3,8 @@ OUT1=server
 OUT2=client
 OUT3=serverB
 OUT4=clientB
+OUT5=serverD
+OUT6=clientD
 # CFLAGS=`pkg-config --cflags --libs glib-2.0`
 all:
 	@$(CC) -o $(OUT1).out $(OUT1).c
@@ -13,6 +15,10 @@ all:
 	@echo "Compiled $(OUT3).c to $(OUT3).out successfully!"
 	@$(CC) -o $(OUT4).out $(OUT4).c
 	@echo "Compiled $(OUT4).c to $(OUT4).out successfully!"
+	@$(CC) -o $(OUT5).out $(OUT5).c
+	@echo "Compiled $(OUT5).c to $(OUT5).out successfully!"
+	@$(CC) -o $(OUT6).out $(OUT6).c
+	@echo "Compiled $(OUT6).c to $(OUT6).out successfully!"
 run: $(OUT1).out $(OUT2).out
 	@echo "Running...\n"
 	@./$(OUT1)
@@ -37,3 +43,13 @@ partB_c:
 	@echo "Compiled $(OUT4).c to $(OUT4).out successfully!"
 	@echo "Running ./$(OUT4).out 42"
 	@./$(OUT4).out 42
+sd:
+	@$(CC) -o $(OUT5).out $(OUT5).c
+	@echo "Compiled $(OUT5).c to $(OUT5).out successfully!"
+	@echo "Running ./$(OUT5).out 42"
+	@./$(OUT5).out 42
+cd:
+	@$(CC) -o $(OUT6).out $(OUT6).c
+	@echo "Compiled $(OUT6).c to $(OUT6).out successfully!"
+	@echo "Running ./$(OUT6).out 42"
+	@./$(OUT6).out 42
