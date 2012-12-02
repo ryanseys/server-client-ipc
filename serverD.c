@@ -3,7 +3,7 @@
 
 #define USAGE_STRING "Invalid arguments.\nUsage: ./serverD.out new_server_key\n"
 #define INVALID_SERVER_KEY "Invalid server key. Please specify a positive integer.\n"
-#define MAX_CLIENTS 2
+#define MAX_CLIENTS 10 /* max clients */
 
 int create_msg_queue(int key){
   int qID;
@@ -104,7 +104,6 @@ int main(int argc,char * argv[]){
       pntr->source = from;
       strncpy(pntr->msgstr, message, 1);
       clients[current_num_clients] = from;
-      printf("clients[%d] = %d\n", current_num_clients, clients[current_num_clients]);
       current_num_clients++;
     }
     else {
