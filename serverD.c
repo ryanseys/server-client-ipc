@@ -1,6 +1,6 @@
 #include "ipcserverclient.h"
 
-#define USAGE_STRING "Invalid arguments.\nUsage: ./server.out new_server_key\n"
+#define USAGE_STRING "Invalid arguments.\nUsage: ./serverD.out new_server_key\n"
 #define INVALID_SERVER_KEY "Invalid server key. Please specify a positive integer.\n"
 #define MAX_CLIENTS 2
 
@@ -89,7 +89,7 @@ int main(int argc,char * argv[]){
   }
 
   printf("Server connected! Waiting for clients to connect...\n");
-  printf("Connect client by running ./client.out %d new_client_key\n", key);
+  printf("Connect client by running ./clientD.out %d new_client_key\n", key);
 
   while(1) {
     //reads a message from the message queue and prints to console
@@ -102,8 +102,12 @@ int main(int argc,char * argv[]){
     to = tempbuf.data.dest;
     from = tempbuf.data.source;
     strncpy(message, tempbuf.data.msgstr, 1);
-
-    if(current_num_clients == 0) {
+    if(strcmp(message, "\0") == 0) {
+      printf("Client %d connected!\n", from);
+      strcpy(tempbuf.data.msgstr, "");
+    }
+    else if(current_num_clients == 0) {
+      printf("else if\n");
       client_msg_buffs[0].data.dest = to;
       client_msg_buffs[0].data.source = from;
       strncpy(client_msg_buffs[0].data.msgstr, message, 1);
@@ -111,6 +115,7 @@ int main(int argc,char * argv[]){
       current_num_clients++;
     }
     else {
+      printf("else\n");
       int i = 0;
       int buff = -1;
       while(i < current_num_clients) {
