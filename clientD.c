@@ -1,7 +1,7 @@
 #include "ipcserverclient.h"
 
 #define NUM_THREADS 2
-#define USAGE_STRING "Usage: receiving_client_key message_to_send\n"
+#define USAGE_STRING "Usage: receiving_client_key message_to_send (Example: 42 hello )\n"
 #define INIT_USAGE "Invalid arguments.\nUsage: ./clientD.out running_server_key new_client_key\n"
 
 //receives a message from the message queue and prints it to the console
@@ -79,11 +79,11 @@ void * send_thread(void * arg) {
       other_client_key = atoi(strncpy(numberbuff, input, pos));
       if(other_client_key) {
         char * message = buffer+pos+1;
-        printf("Sending %s to %d\n", message, other_client_key);
+        printf("Sending \"%s\" to %d\n", message, other_client_key);
         send_message(message, *qID, *key, *client_key, other_client_key);
         if(strcmp(message, "exit") == 0) exit(0); //exit if you say to exit
       }
-      else printf(USAGE_STRING);
+      else printf("%s%s", "Invalid input!\n", USAGE_STRING);
     }
     else printf(USAGE_STRING);
     strncpy(numberbuff, "", 255); //clear buffer
@@ -122,7 +122,7 @@ void * receive_thread(void * arg) {
     messagebuf.data.source = from;
     strcat(messagebuf.data.msgstr, message);
     if(strcmp(message, "\0") == 0) {
-      printf("Received message from %ld: %s\n", messagebuf.data.source, messagebuf.data.msgstr);
+      printf("Received message from %ld: \"%s\"\n", messagebuf.data.source, messagebuf.data.msgstr);
       strncpy(messagebuf.data.msgstr, "", MSGSTR_LEN);
     }
   }
