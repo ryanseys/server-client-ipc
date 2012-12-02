@@ -11,13 +11,6 @@ void receive_message(int msgqid, msgbuf * msgp, long mtype) {
     if (errno == EIDRM) {
       fprintf(stderr, "Message queue removed while waiting!\n");
     }
-    //perror("msgrcv: Error while attempting to receive message...\n");
-    //exit(EXIT_FAILURE);
-  }
-  else{
-    //printf("Received %d bytes from message queue.\n", bytesRead);
-    //printf("Message payload: Source: %ld\n", msgp->data.source);
-    //printf("Message payload: Message string: %s\n", msgp->data.msgstr);
   }
 }
 
@@ -190,7 +183,6 @@ int main(int argc, char * argv[]) {
     exit(-1);
   }
 
-  // vars = [qID, key, client_key]
   vars[0] = qID;
   vars[1] = key;
   vars[2] = client_key;

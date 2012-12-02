@@ -6,7 +6,6 @@
 
 int create_msg_queue(int key){
 	int qID;
-	// printf("%d\n",key);
 	if ((qID = msgget(key, IPC_CREAT | PERMISSIONS)) == -1){
 		perror("mssget: Error creating msg queue \n");
 		exit(EXIT_FAILURE);
@@ -21,13 +20,6 @@ void receive_message(int msgqid, msgbuf * msgp, long mtype){
 		if (errno == EIDRM) {
 			fprintf(stderr, "Message queue removed while waiting!\n");
 		}
-		//perror("msgrcv: Error while attempting to receive message...\n");
-		//exit(EXIT_FAILURE);
-	}
-	else{
-		//printf("Received %d bytes from message queue.\n", bytesRead);
-		//printf("Message payload: Source: %ld\n", msgp->data.source);
-		//printf("Message from %ld to %ld: %s\n", msgp->data.source, msgp->data.dest, msgp->data.msgstr);
 	}
 }
 
