@@ -45,41 +45,10 @@ int receive_message(int msgqid, msgbuf * msgp, long mtype){
 		exit(EXIT_FAILURE);
 	}
 	else{
-
 		// if(strcmp(msgp->data.msgstr[]))
      	return msgp->data.source;
 	}
 }
-
-//sends a message to the client via the messsage queue
-// void send_message_old(char message[], int msgqid, long to, long from){
-//   msgbuf new_msg;
-//   new_msg.mtype = to; //reciever
-//   data_st ds;
-//   ds.source = from;
-//   strncpy(ds.msgstr,message,MSGSTR_LEN);
-//   ds.msgstr[MSGSTR_LEN - 1] = '\0';
-//   new_msg.data = ds;
-//   int i;
-//   //send a character at a time
-//   for(i = 0; i < length; i++) {
-//   	strncpy(ds.msgstr,&(message[i]), 1);
-//   	new_msg.data = ds;
-//     int ret = msgsnd(msgqid, (void *) &new_msg, sizeof(data_st), 0);
-//     if (ret == -1) {
-//       perror("msgsnd: Error attempting to send message!");
-//       exit(EXIT_FAILURE);
-//     }
-//   }
-//   strncpy(ds.msgstr, null, 1);
-//   new_msg.data = ds;
-
-//   int ret = msgsnd(msgqid, (void *) &new_msg, sizeof(data_st), IPC_NOWAIT);
-//   if (ret == -1) {
-//     perror("msgsnd: Error attempting to send message!");
-//     exit(EXIT_FAILURE);
-//   }
-// }
 
 //sends a message to the client via the messsage queue
 void send_message(char message[MSGSTR_LEN], int msgqid, long to, long from){
@@ -150,7 +119,7 @@ int main(int argc,char * argv[]){
     	strcat(localbuf_client1.data.msgstr, message);  //concatenate character in message to local buffer
 
     	if(strcmp(message,"\0") == 0){ //if the last concatenated message was a null string
-    		printf("Received message from client: %s\n", localbuf_client1.data.msgstr);
+    		printf("Received message from client: \"%s\"\n", localbuf_client1.data.msgstr);
     		printf("Relaying message to client...\n");
             send_message(localbuf_client1.data.msgstr, qID, sender, key);
     		strcpy(localbuf_client1.data.msgstr,""); //clean up local buffer

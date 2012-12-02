@@ -100,7 +100,7 @@ void * send_thread(void * arg) {
     if (buffer[strlen(buffer) - 1] == '\n') {
       buffer[strlen(buffer) - 1] = '\0';
     }
-    printf("Sending %s\n", buffer);
+    printf("Sending \"%s\"\n", buffer);
     send_message(buffer, *qID, *key, CLIENT_KEY);
     if(strcmp(buffer, EXIT_STRING) == 0) exit(0); //exit if you say to exit
   }
@@ -134,8 +134,7 @@ void * receive_thread(void * arg) {
     strncpy(message, tempbuf.data.msgstr, 1);
     strcat(localbuf.data.msgstr, message);
     if(strcmp(message,"\0") == 0){
-      printf("Message: %s\n", localbuf.data.msgstr);
-      printf("Received message from server: %s\n", localbuf.data.msgstr);
+      printf("Received message from server: \"%s\"\n", localbuf.data.msgstr);
       strcpy(localbuf.data.msgstr,""); //clean up local buffer
 
     }
@@ -160,10 +159,10 @@ int main(int argc, char * argv[]) {
   int qID;
   int key;
   int vars[2];
+
   // 1st commandline argument = key of message queue
   if(argc == 2) { // get command line argument
     key = atoi(argv[1]);
-    //printf("Trying to get queue (key: %d)\n", key);
     qID = msgget(key, 0); // 0 for making use of existing queue
   }
   else if(argc == 1) { //assume 42
@@ -186,7 +185,6 @@ int main(int argc, char * argv[]) {
   vars[0] = qID;
   vars[1] = key;
 
-  //printf("Message queue got (key: %d)\n", key);
 
   //create sender thread
   ret = pthread_create(&(threads[0]), NULL, send_thread, &(vars));
