@@ -42,7 +42,7 @@ void send_message(char message[], int msgqid, long to, long from){
   ds.msgstr[MSGSTR_LEN - 1] = '\0';
   new_msg.data = ds;
 
-  int ret = msgsnd(msgqid, (void *) &new_msg, sizeof(data_st), IPC_NOWAIT);
+  int ret = msgsnd(msgqid, (void *) &new_msg, sizeof(data_st), 0);
   if (ret == -1) {
     perror("msgsnd: Error attempting to send message!");
     exit(EXIT_FAILURE);
@@ -105,10 +105,13 @@ int main(int argc,char * argv[]){
       }
       if(buff != -1) {
         strcat(client_msg_buffs[buff].data.msgstr, message);
-        if(strcmp(message, "\0") == 0) printf("Message: %s\n", client_msg_buffs[buff].data.msgstr);
+        if(strcmp(message, "\0") == 0) {
+          printf("Message: %s\n", client_msg_buffs[buff].data.msgstr);
+          strcpy(client_msg_buffs[buff].data.msgstr, "");
+        }
       }
     }
-
+theyeryea alksdalksdlkaskdaksdklasldkalskdk ask daklsdkaskdlaksdlkaslkdaks dl kakdsl askdl kaksdalk sdl kalksd laskldaskldlaskdalsdtheyeryea alksdalksdlkaskdaksdklasldkalskdk ask daklsdkaskdlaksdlkaslkdaks dl kakdsl askdl kaksdalk sdl kalksd laskldaskldlaskdalsdtheyeryea alksdalksdlkaskdaksdklasldkalskdk ask daklsdkaskdlaksdlkaslkdaks dl kakdsl askdl kaksdalk sdl kalksd laskldaskldlaskdalsd
     //if the message is for the server
     /*
     if(to == key) {

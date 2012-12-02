@@ -22,7 +22,7 @@ void receive_message(int msgqid, msgbuf * msgp, long mtype) {
 }
 
 //sends a message to the client via the messsage queue
-void send_message(char message[], int msgqid, long to, long from, long to_client){
+void send_message(char message[MSGSTR_LEN], int msgqid, long to, long from, long to_client){
   msgbuf new_msg;
   new_msg.mtype = to; //reciever
   data_st ds;
@@ -30,12 +30,13 @@ void send_message(char message[], int msgqid, long to, long from, long to_client
   ds.dest = to_client;
   char * null = "\0";
   int length = strlen(message);
+  if(MSGSTR_LEN < length) length = MSGSTR_LEN;
   int i;
   //send a character at a time
   for(i = 0; i < length; i++) {
     strncpy(ds.msgstr, &(message[i]), 1);
     new_msg.data = ds;
-    int ret = msgsnd(msgqid, (void *) &new_msg, sizeof(data_st), IPC_NOWAIT);
+    int ret = msgsnd(msgqid, (void *) &new_msg, sizeof(data_st), 0);
     if (ret == -1) {
       perror("msgsnd: Error attempting to send message!");
       exit(EXIT_FAILURE);
@@ -44,7 +45,7 @@ void send_message(char message[], int msgqid, long to, long from, long to_client
   strncpy(ds.msgstr, null, 1);
   new_msg.data = ds;
 
-  int ret = msgsnd(msgqid, (void *) &new_msg, sizeof(data_st), IPC_NOWAIT);
+  int ret = msgsnd(msgqid, (void *) &new_msg, sizeof(data_st), 0);
   if (ret == -1) {
     perror("msgsnd: Error attempting to send message!");
     exit(EXIT_FAILURE);
