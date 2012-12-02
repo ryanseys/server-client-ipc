@@ -47,6 +47,7 @@ Running Part B
 ==============
 
 Start Part B server:              $ make sb
+  You will now have a server connected to message queue with key 42.
 Start Part B client alongside:    $ make cb
 
 Type text into the keyboard in the client. Then press enter when done typing.
@@ -59,4 +60,31 @@ Running Part C
 ==============
 
 Start Part C server:              $ make sc
+  You will now have a server connected to message queue with key 42.
 Start Part C client alongside:    $ make cc
+  You will now have a client connected with key 69, sending message to server 42.
+Start another client alongside:    $ ./clientC.out 42 123
+  You will now have a client connected with key 123, sending message to server 42.
+
+To send a message, you must specify the recipient key (either server or client).
+
+e.g. from client 69 type:   42 hello there how are you?
+
+  This will send the message "hello there how are you?" to the server (key=42),
+  and will print it on the server because the message was for the server.
+
+
+e.g. from client 69 type:   69 hello there how are you?
+
+  This will send the message "hello there how are you?" to the server (key=42),
+  and the server will then relay the message to client with key 69 (which in this
+  case is the client we have currently running). Once client 69 recieves the message,
+  it will print the message on the screen.
+
+
+e.g. from client 69 type:   123 hello there how are you?
+
+  This will send the message "hello there how are you?" to the server (key=42),
+  and the server will then relay the message to client with key 123 (which is the
+  other running server in another process). Once client 123 recieves the message,
+  it will print the message on the screen.
