@@ -51,5 +51,5 @@ sd:
 cd:
 	@$(CC) -o $(OUT6).out $(OUT6).c
 	@echo "Compiled $(OUT6).c to $(OUT6).out successfully!"
-	@echo "Running ./$(OUT6).out 42"
-	@./$(OUT6).out 42
+	@echo "Running ./$(OUT2).out 42 69"
+	@./$(OUT2).out 42 69
