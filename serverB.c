@@ -54,7 +54,6 @@ void send_message(char message[MSGSTR_LEN], int msgqid, long to, long from){
   new_msg.mtype = to; //reciever server
   data_st ds;
   ds.source = from;
-  // ds.dest = to; //receiver client
   char * null = "\0";
   int length = strlen(message);
   if(MSGSTR_LEN < length) length = MSGSTR_LEN;
@@ -88,7 +87,6 @@ int main(int argc,char * argv[]){
 		key = DEFAULT_SERVER_KEY;
 		qID = create_msg_queue(key);
 	} else {
-		//TODO: perform some type checking here
 		key = atoi(argv[1]);
 		qID = create_msg_queue(key);
 	}
@@ -108,7 +106,6 @@ int main(int argc,char * argv[]){
 	printf("Connect client by running ./client %d\n", key);
 
 	while((strcmp(localbuf_client1.data.msgstr, EXIT_STRING) != 0)){
-		//printf("Send messages to mtype: %d\n", key);
 		int sender = receive_message(qID, &tempbuf, key); //reads a message from the message queue and stores in local buffer
     	strncpy(message,tempbuf.data.msgstr,1);  //copy the sent character from temporary buffer to message array
 
