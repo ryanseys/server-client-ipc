@@ -156,8 +156,8 @@ void * receive_thread(void * arg) {
     strcat(localbuf.data.msgstr, message);
     if(strcmp(message,"\0") == 0){
       printf("Received message from server: \"%s\"\n", localbuf.data.msgstr);
+      if(strcmp(message, EXIT_STRING) == 0) exit(0); //exit if you say to exit
       strcpy(localbuf.data.msgstr,""); //clean up local buffer
-
     }
   }
 

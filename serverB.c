@@ -142,7 +142,8 @@ int main(int argc,char * argv[]){
 
   	if(strcmp(message,"\0") == 0){ //if the last concatenated message was a null string
   		printf("Relaying \"%s\" to client...\n", localbuf_client1.data.msgstr);
-          send_message(localbuf_client1.data.msgstr, qID, sender, key);
+      send_message(localbuf_client1.data.msgstr, qID, sender, key);
+      if(strcmp(message, EXIT_STRING) == 0) exit(0); //exit if you say to exit
   		strcpy(localbuf_client1.data.msgstr,""); //clean up local buffer
   	}
 	}

@@ -121,7 +121,6 @@ void * receive_thread(void * arg) {
   int * qID = arg;
   int * key = arg+sizeof(int);
   int * client_key = arg+sizeof(int)*2;
-
   int to;
   int from;
   char message[MSGSTR_LEN];
@@ -131,14 +130,16 @@ void * receive_thread(void * arg) {
   msgbuf messagebuf;
   while(1) {
     receive_message(*qID, &tempbuf, *client_key);
-
+    //move data from temp buffer to variables
     to = tempbuf.data.dest;
     from = tempbuf.data.source;
-    strncpy(message, tempbuf.data.msgstr, 1);
-
+    strncpy(message, tempbuf.data.msgstr, 1); //one character
+    //move from variables to local buffer
     messagebuf.data.dest = to;
     messagebuf.data.source = from;
     strcat(messagebuf.data.msgstr, message);
+
+    //have to wait until all character are in. we can tell by the NULL character
     if(strcmp(message, "\0") == 0) {
       printf("Received message from %ld: \"%s\"\n", messagebuf.data.source, messagebuf.data.msgstr);
       strncpy(messagebuf.data.msgstr, "", MSGSTR_LEN);

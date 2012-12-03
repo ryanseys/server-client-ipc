@@ -138,15 +138,17 @@ void * receive_thread(void * arg) {
   msgbuf messagebuf;
   while(1) {
     receive_message(*qID, &tempbuf, *client_key);
-
+    //move the message from the temp buffer to variables
     to = tempbuf.data.dest;
     from = tempbuf.data.source;
-    strncpy(message, tempbuf.data.msgstr, 1);
+    strncpy(message, tempbuf.data.msgstr, 1); //one character
 
+    //move the message back into a new local buffer
     messagebuf.data.dest = to;
     messagebuf.data.source = from;
     strcat(messagebuf.data.msgstr, message);
 
+    //have to wait until all character are in. we can tell by the NULL character
     if(strcmp(message, "\0") == 0) { //wait until all characters come in
       printf("Received message from %ld: \"%s\"\n", messagebuf.data.source, messagebuf.data.msgstr);
       strncpy(messagebuf.data.msgstr, "", MSGSTR_LEN);
@@ -178,7 +180,6 @@ void start_thread(pthread_t * thread) {
     printf("Receive thread returned: %d\n", *intp);
     free(thread_ret_ptr);
   }
-
 }
 
 /**
