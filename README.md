@@ -106,6 +106,8 @@ Start Part D server:              $ make sd
   You will now have a server connected to message queue with key 42.
 Start Part D client alongside:    $ make cd
   You will now have a client connected with key 69, sending message to server 42.
+Start another client alongside:    $ ./clientD.out 42 123
+  You will now have a client connected with key 123, sending message to server 42.
 
   ** NEW ** You will see a connect message for client 69 on the server once the client connects.
 
@@ -121,7 +123,7 @@ that you want to send to that recipient. There are some examples below.
 ** NEW ** If you do not specify a recipient, it will go to everyone. This means that it will send the
 message to the server and the server will relay it to every connected client.
 
-e.g. from client 69 type:   hey how are you?
+** NEW** e.g. from client 69 type:   hey how are you?
 
   This will send the message "hey how are you?" to the server (key=42),
   and the server will relay it to every client it currently has listed as connected.

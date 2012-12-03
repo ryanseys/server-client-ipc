@@ -5,6 +5,11 @@
 #define INVALID_SERVER_KEY "Invalid server key. Please specify a positive integer.\n"
 #define MAX_CLIENTS 10 /* max clients */
 
+/**
+ * Creates a message queue
+ * @param  key queue key to make
+ * @return     the queue ID of the queue made
+ */
 int create_msg_queue(int key){
   int qID;
   if ((qID = msgget(key, IPC_CREAT | PERMISSIONS)) == -1){
@@ -14,7 +19,12 @@ int create_msg_queue(int key){
   return qID;
 }
 
-//receives a message from the message queue and prints it to the console
+/**
+ * Receives a message from the message queue and puts it in a buffer
+ * @param msgqid Queue key
+ * @param msgp   pointer to message buffer
+ * @param mtype  Type of message to recieve
+ */
 void receive_message(int msgqid, msgbuf * msgp, long mtype){
   int bytesRead = msgrcv(msgqid, msgp, sizeof(struct data_st), mtype, 0);
   if (bytesRead == -1) {
@@ -24,7 +34,13 @@ void receive_message(int msgqid, msgbuf * msgp, long mtype){
   }
 }
 
-//sends a message to the client via the messsage queue
+/**
+ * Sends a message to the client via the messsage queue
+ * @param message Message to send
+ * @param msgqid  Queue key
+ * @param to      client/server key to send to
+ * @param from    client/server key sent from
+ */
 void send_message(char message[MSGSTR_LEN], int msgqid, long to, long from){
   msgbuf new_msg;
   new_msg.mtype = to; //reciever server
@@ -55,7 +71,13 @@ void send_message(char message[MSGSTR_LEN], int msgqid, long to, long from){
   }
 }
 
-
+/**
+ * Main program to run the sending
+ * of messages and receival of messages
+ * @param  argc Argument count
+ * @param  argv Argument array
+ * @return      Exit code
+ */
 int main(int argc,char * argv[]){
   int qID;
   int key;

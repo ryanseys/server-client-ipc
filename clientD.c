@@ -4,7 +4,12 @@
 #define USAGE_STRING "Usage: receiving_client_key message_to_send (Example: 42 hello )\n"
 #define INIT_USAGE "Invalid arguments.\nUsage: ./clientD.out running_server_key new_client_key\n"
 
-//receives a message from the message queue and prints it to the console
+/**
+ * Receives a message from the message queue and puts it in a buffer
+ * @param msgqid Queue key
+ * @param msgp   pointer to message buffer
+ * @param mtype  Type of message to recieve
+ */
 void receive_message(int msgqid, msgbuf * msgp, long mtype) {
   int bytesRead = msgrcv(msgqid, msgp, sizeof(struct data_st), mtype, 0);
   if (bytesRead == -1) {
@@ -14,7 +19,14 @@ void receive_message(int msgqid, msgbuf * msgp, long mtype) {
   }
 }
 
-//sends a message to the server via the messsage queue
+/**
+ * Sends a message to the client via the messsage queue
+ * @param message Message to send
+ * @param msgqid  Queue key
+ * @param to      server to send to
+ * @param from    client/server key sent from
+ * @to_client     client to send to
+ */
 void send_message(char message[MSGSTR_LEN], int msgqid, long to, long from, long to_client){
   msgbuf new_msg;
   new_msg.mtype = to; //reciever server
@@ -45,6 +57,10 @@ void send_message(char message[MSGSTR_LEN], int msgqid, long to, long from, long
   }
 }
 
+/**
+ * Thread for running the sending of messages.
+ * @param arg Arguments needed to send messages
+ */
 void * send_thread(void * arg) {
   int * qID = arg;
   int * key = arg+sizeof(int);
@@ -97,6 +113,10 @@ void * send_thread(void * arg) {
   return myretp; /* Same as: pthread_exit(myretp); */
 }
 
+/**
+ * Thread that receives the messages
+ * @param arg Arguments needed to receive messages from the queue
+ */
 void * receive_thread(void * arg) {
   int * qID = arg;
   int * key = arg+sizeof(int);
@@ -134,6 +154,10 @@ void * receive_thread(void * arg) {
   return myretp; /* Same as: pthread_exit(myretp); */
 }
 
+/**
+ * Start a created thread
+ * @param thread Thread to start
+ */
 void start_thread(pthread_t * thread) {
   void * thread_ret_ptr;
   int ret;
@@ -149,6 +173,12 @@ void start_thread(pthread_t * thread) {
 
 }
 
+/**
+ * Creates a thread based on type given
+ * @param thread      Thread pointer to set
+ * @param vars        Variables for the thread initialization
+ * @param thread_type Type of thread to create
+ */
 void create_thread(pthread_t * thread, void * vars, int thread_type) {
   int ret;
   if(thread_type == 1) ret = pthread_create(thread, NULL, send_thread, vars);
@@ -159,15 +189,14 @@ void create_thread(pthread_t * thread, void * vars, int thread_type) {
   }
 }
 
-void printlol() {
-
-}
-
+/**
+ * Main program to run the sending
+ * of messages and receival of messages
+ * @param  argc Argument count
+ * @param  argv Argument array
+ * @return      Exit code
+ */
 int main(int argc, char * argv[]) {
-
-// a definition mentioning inline
-
-
   pthread_t threads[NUM_THREADS];
   int targs[NUM_THREADS];
   int i, ret, ret2;

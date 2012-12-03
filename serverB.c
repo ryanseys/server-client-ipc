@@ -11,16 +11,27 @@
 #define DEFAULT_SERVER_KEY 42
 #define EXIT_STRING "EXIT"
 
+/**
+ * Data for message structure
+ */
 typedef struct data_st{
 	long source;
 	char msgstr[MSGSTR_LEN];
 } data_st;
 
+/**
+ * Message buffer structure
+ */
 typedef struct msgbuf_st {
    long mtype; /* A message type > 0. */
    data_st data; /* Data */
 } msgbuf;
 
+/**
+ * Creates a message queue
+ * @param  key queue key to make
+ * @return     the queue ID of the queue made
+ */
 int create_msg_queue(int key){
 	int qID;
 	if ((qID = msgget(key, IPC_CREAT | PERMISSIONS)) == -1){
@@ -30,10 +41,13 @@ int create_msg_queue(int key){
 	return qID;
 }
 
-/*
-	receives a character from the message queue and stores it in the local buffer
-	Returns 0, if it contains a '\0' char
-*/
+/**
+ * Receives a message from the message queue and puts it in a buffer
+ * @param msgqid Queue key
+ * @param msgp   pointer to message buffer
+ * @param mtype  Type of message to recieve
+ * @return 0     if it contains a '\0' char
+ */
 int receive_message(int msgqid, msgbuf * msgp, long mtype){
 	int bytesRead = msgrcv(msgqid, msgp, sizeof(struct data_st), mtype, 0);
 	if(bytesRead == -1) {
@@ -48,7 +62,13 @@ int receive_message(int msgqid, msgbuf * msgp, long mtype){
 	}
 }
 
-//sends a message to the client via the messsage queue
+/**
+ * Sends a message to the client via the messsage queue
+ * @param message Message to send
+ * @param msgqid  Queue key
+ * @param to      server key to send to
+ * @param from    client/server key sent from
+ */
 void send_message(char message[MSGSTR_LEN], int msgqid, long to, long from){
   msgbuf new_msg;
   new_msg.mtype = to; //reciever server
@@ -78,6 +98,13 @@ void send_message(char message[MSGSTR_LEN], int msgqid, long to, long from){
   }
 }
 
+/**
+ * Main program to run the sending
+ * of messages and receival of messages
+ * @param  argc Argument count
+ * @param  argv Argument array
+ * @return      Exit code
+ */
 int main(int argc,char * argv[]){
 	int qID;
 	int key;

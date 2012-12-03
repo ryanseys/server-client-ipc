@@ -13,12 +13,18 @@
 #define DISCONNECT_MSG "::DISCONNECT::"
 #define EXIT_STR "EXIT"
 
+/**
+ * Data for message struct
+ */
 typedef struct data_st{
   long source; //source number
   long dest; //destination number
   char msgstr[MSGSTR_LEN];
 } data_st;
 
+/**
+ * Message buffer structure
+ */
 typedef struct msgbuf_st {
    long mtype; /* A message type > 0. */
    data_st data; /* Data */

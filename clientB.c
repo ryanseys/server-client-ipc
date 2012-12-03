@@ -14,17 +14,28 @@
 #define NUM_THREADS 2
 #define EXIT_STRING "EXIT"
 
+/**
+ * Data for message struct
+ */
 typedef struct data_st{
   long source;
   char msgstr[MSGSTR_LEN];
 } data_st;
 
+/**
+ * Message buffer structure
+ */
 typedef struct msgbuf_st {
    long mtype; /* A message type > 0. */
    data_st data; /* Data */
 } msgbuf;
 
-//receives a message from the message queue and prints it to the console
+/**
+ * Receives a message from the message queue and puts it in a buffer
+ * @param msgqid Queue key
+ * @param msgp   pointer to message buffer
+ * @param mtype  Type of message to recieve
+ */
 void receive_message(int msgqid, msgbuf * msgp, long mtype) {
   int bytesRead = msgrcv(msgqid,msgp,sizeof(struct data_st),mtype,0);
   if (bytesRead == -1) {
@@ -34,7 +45,13 @@ void receive_message(int msgqid, msgbuf * msgp, long mtype) {
   }
 }
 
-//sends a message to the client via the messsage queue
+/**
+ * Sends a message to the server via the messsage queue
+ * @param message Message to send
+ * @param msgqid  Queue key
+ * @param to      server key to send to
+ * @param from    client/server key sent from
+ */
 void send_message_old(char message[], int msgqid, long to, long from){
   msgbuf new_msg;
   new_msg.mtype = to; //reciever
@@ -51,7 +68,13 @@ void send_message_old(char message[], int msgqid, long to, long from){
   }
 }
 
-//sends a message to the client via the messsage queue
+/**
+ * Sends a message to the server via the messsage queue
+ * @param message Message to send
+ * @param msgqid  Queue key
+ * @param to      server key to send to
+ * @param from    client/server key sent from
+ */
 void send_message(char message[MSGSTR_LEN], int msgqid, long to, long from){
   msgbuf new_msg;
   new_msg.mtype = to; //reciever server
@@ -82,12 +105,15 @@ void send_message(char message[MSGSTR_LEN], int msgqid, long to, long from){
   }
 }
 
+/**
+ * Thread for running the sending of messages.
+ * @param arg Arguments needed to send messages
+ */
 void * send_thread(void * arg) {
   int * qID = arg;
   int * key = arg+sizeof(int);
 
   char buffer[MSGSTR_LEN];
-  //printf("In the send thread with arg %d.\n", *val);
 
   while(fgets(buffer, MSGSTR_LEN, stdin)) {
     if (buffer[strlen(buffer) - 1] == '\n') {
@@ -107,10 +133,13 @@ void * send_thread(void * arg) {
   return myretp; /* Same as: pthread_exit(myretp); */
 }
 
+/**
+ * Thread that receives the messages
+ * @param arg Arguments needed to receive messages from the queue
+ */
 void * receive_thread(void * arg) {
   int * qID = arg;
   int * key = arg+sizeof(int);
-  //printf("In the receive thread with arg %d.\n", *val);
 
   int to;
   int from;
@@ -121,18 +150,12 @@ void * receive_thread(void * arg) {
 
   while(1) {
     receive_message(*qID, &tempbuf, CLIENT_KEY);
-    // to =tempbuf.data.dest;
-    //from = tempbuf.data.source;
-
     strncpy(message, tempbuf.data.msgstr, 1);
     strcat(localbuf.data.msgstr, message);
     if(strcmp(message,"\0") == 0){
       printf("Received message from server: \"%s\"\n", localbuf.data.msgstr);
       strcpy(localbuf.data.msgstr,""); //clean up local buffer
 
-    }
-    else{
-      // sleep(1);
     }
   }
 
@@ -145,6 +168,13 @@ void * receive_thread(void * arg) {
   return myretp; /* Same as: pthread_exit(myretp); */
 }
 
+/**
+ * Main program to run the sending
+ * of messages and receival of messages
+ * @param  argc Argument count
+ * @param  argv Argument array
+ * @return      Exit code
+ */
 int main(int argc, char * argv[]) {
   pthread_t threads[NUM_THREADS];
   int targs[NUM_THREADS];
@@ -163,7 +193,6 @@ int main(int argc, char * argv[]) {
     qID = msgget(key, 0);
   }
   else {
-    //TODO: perform some type checking here
     printf("Too many arguments: %d\n", argc);
     exit(-1);
   }
@@ -173,10 +202,8 @@ int main(int argc, char * argv[]) {
     exit(-1);
   }
 
-  // vars = [qID, key]
   vars[0] = qID;
   vars[1] = key;
-
 
   //create sender thread
   ret = pthread_create(&(threads[0]), NULL, send_thread, &(vars));
