@@ -100,7 +100,6 @@ Running Part D
  * Connect messages displayed on server when a client connects.
  * Disconnect messages displayed on server when a client disconnects.
  * Global (public) messages sent to all currently connected clients when no recipient key is specified.
- * Support for multiple clients (more than two) up to the max limit specified in the code.
 
 Start Part D server:              $ make sd
   You will now have a server connected to message queue with key 42.
