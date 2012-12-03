@@ -153,22 +153,22 @@ int main(int argc,char * argv[]){
                   if(clients[i] == pntr->source) clients[i] = -1;
                 }
               }
-              else printf("Received message from %ld: \"%s\"\n", pntr->source, pntr->msgstr);
+              else printf("Client %ld: \"%s\"\n", pntr->source, pntr->msgstr);
             }
             else if(pntr->dest == 0) {
               //to everyone
-              printf("Received message from %ld: \"%s\"\n", pntr->source, pntr->msgstr);
+              printf("Client %ld: \"%s\"\n", pntr->source, pntr->msgstr);
               int j = 0;
               while(j < current_num_clients) {
                 if(clients[j] != -1) {
-                  printf("Relaying message to %d from %ld: \"%s\"\n", clients[j], pntr->source, pntr->msgstr);
+                  //printf("Relaying message to %d from %ld: \"%s\"\n", clients[j], pntr->source, pntr->msgstr);
                   send_message(pntr->msgstr, qID, clients[j], pntr->source);
                 }
                 j++;
               }
             }
             else {
-              printf("Relaying message to %ld from %ld: \"%s\"\n", pntr->dest, pntr->source, pntr->msgstr);
+              //printf("Relaying message to %ld from %ld: \"%s\"\n", pntr->dest, pntr->source, pntr->msgstr);
               send_message(pntr->msgstr, qID, pntr->dest, pntr->source);
             }
           strncpy(pntr->msgstr, "", MSGSTR_LEN);

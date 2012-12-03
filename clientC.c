@@ -1,7 +1,7 @@
 #include "ipcserverclient.h"
 
 #define NUM_THREADS 2
-#define USAGE_STRING "Usage: receiving_client_key message_to_send\n"
+#define USAGE_STRING "Usage: receiving_client_key message_to_send (Example: 42 hello)\n"
 #define INIT_USAGE "Invalid arguments.\nUsage: ./client.out running_server_key new_client_key\n"
 
 /**

@@ -219,6 +219,7 @@ int main(int argc, char * argv[]) {
   //used for when a exit signal is sent to the client from user
   inline void exiting() {
     send_message(DISCONNECT_MSG, qID, key, client_key, key);
+    printf("*** YOU ARE NOW LOGGED OUT CHAT***");
     exit(0);
   }
 
