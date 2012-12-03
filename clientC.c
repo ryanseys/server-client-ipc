@@ -11,6 +11,7 @@
  * @param mtype  Type of message to recieve
  */
 void receive_message(int msgqid, msgbuf * msgp, long mtype) {
+  //blocking receive
   int bytesRead = msgrcv(msgqid, msgp, sizeof(struct data_st), mtype, 0);
   if (bytesRead == -1) {
     if (errno == EIDRM) {
@@ -41,6 +42,7 @@ void send_message(char message[MSGSTR_LEN], int msgqid, long to, long from, long
   for(i = 0; i < length; i++) {
     strncpy(ds.msgstr, &(message[i]), 1);
     new_msg.data = ds;
+    //blocking send to prevent error
     int ret = msgsnd(msgqid, (void *) &new_msg, sizeof(data_st), 0);
     if (ret == -1) {
       perror("msgsnd: Error attempting to send message!");
@@ -66,11 +68,11 @@ void * send_thread(void * arg) {
   int * key = arg+sizeof(int);
   int * client_key = arg+sizeof(int)*2;
   int other_client_key;
+  char buffer[MSGSTR_LEN];
 
   printf("You are now connected as client %d\n%s", *client_key, USAGE_STRING);
 
-  char buffer[MSGSTR_LEN];
-
+  //continue to get user input for sending messages
   while(fgets(buffer, MSGSTR_LEN, stdin)) {
     if (buffer[strlen(buffer) - 1] == '\n') {
       buffer[strlen(buffer) - 1] = '\0';
@@ -83,17 +85,21 @@ void * send_thread(void * arg) {
     char numberbuff[255];
     char messagebuff[255];
     pos = strcspn(input, space);
+    //parsing out the key and message
     if(pos) {
       other_client_key = atoi(strncpy(numberbuff, input, pos));
       if(other_client_key) {
         char * message = buffer+pos+1;
+        //sending the message
         printf("Sending \"%s\" to %d\n", message, other_client_key);
         send_message(message, *qID, *key, *client_key, other_client_key);
+        //is it time to exit?
         if(strcmp(message, EXIT_STR) == 0) exit(0); //exit if you say to exit
       }
-      else printf(USAGE_STRING);
+      else printf(USAGE_STRING); // incorrect input
     }
-    else printf(USAGE_STRING);
+    else printf(USAGE_STRING); // incorrect input
+    //clear the buffers
     strncpy(numberbuff, "", 255); //clear buffer
     strncpy(messagebuff, "", 255); //clear buffer
   }
@@ -219,14 +225,15 @@ int main(int argc, char * argv[]) {
     exit(-1);
   }
 
+  //values needed for threads
   vars[0] = qID;
   vars[1] = key;
   vars[2] = client_key;
 
-  //create sender thread
+  //create sender/receiver threads
   create_thread(&(threads[0]), vars, 1);
   create_thread(&(threads[1]), vars, 2);
-
+  //start the threads
   start_thread(&(threads[0]));
   start_thread(&(threads[1]));
   return 0;

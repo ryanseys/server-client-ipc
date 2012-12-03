@@ -82,6 +82,7 @@ void send_message(char message[MSGSTR_LEN], int msgqid, long to, long from){
   for(i = 0; i < length; i++) {
     strncpy(ds.msgstr, &(message[i]), 1);
     new_msg.data = ds;
+    //blocking send to prevent error
     int ret = msgsnd(msgqid, (void *) &new_msg, sizeof(data_st), 0);
     if (ret == -1) {
       perror("msgsnd: Error attempting to send message!");
@@ -131,26 +132,25 @@ int main(int argc,char * argv[]){
 
 	printf("Server connected! Waiting for client to connect...\n");
 	printf("Connect client by running ./client %d\n", key);
-
+  //while not exit message, keep receiving messages
 	while((strcmp(localbuf_client1.data.msgstr, EXIT_STRING) != 0)){
 		int sender = receive_message(qID, &tempbuf, key); //reads a message from the message queue and stores in local buffer
-    	strncpy(message,tempbuf.data.msgstr,1);  //copy the sent character from temporary buffer to message array
+  	strncpy(message,tempbuf.data.msgstr,1);  //copy the sent character from temporary buffer to message array
 
-    	localbuf_client1.data.source = key;  //set local buffer source id
-    	strcat(localbuf_client1.data.msgstr, message);  //concatenate character in message to local buffer
+  	localbuf_client1.data.source = key;  //set local buffer source id
+  	strcat(localbuf_client1.data.msgstr, message);  //concatenate character in message to local buffer
 
-    	if(strcmp(message,"\0") == 0){ //if the last concatenated message was a null string
-    		printf("Relaying \"%s\" to client...\n", localbuf_client1.data.msgstr);
-            send_message(localbuf_client1.data.msgstr, qID, sender, key);
-    		strcpy(localbuf_client1.data.msgstr,""); //clean up local buffer
-    	}
+  	if(strcmp(message,"\0") == 0){ //if the last concatenated message was a null string
+  		printf("Relaying \"%s\" to client...\n", localbuf_client1.data.msgstr);
+          send_message(localbuf_client1.data.msgstr, qID, sender, key);
+  		strcpy(localbuf_client1.data.msgstr,""); //clean up local buffer
+  	}
 	}
 	//print message in buffer
 	printf("message received: %s\n",localbuf_client1.data.msgstr);
 
   /* Assuming that msqid has been obtained beforehand. */
   if (msgctl(qID, IPC_RMID, NULL) == -1) {
-  /* As an example for checking errno. */
     if (errno == EIDRM) {
       fprintf(stderr, "Message queue already removed.\n");
     }

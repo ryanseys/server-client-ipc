@@ -54,6 +54,7 @@ void send_message(char message[MSGSTR_LEN], int msgqid, long to, long from) {
   for(i = 0; i < length; i++) {
     strncpy(ds.msgstr, &(message[i]), 1);
     new_msg.data = ds;
+    //blocking send to prevent error
     int ret = msgsnd(msgqid, (void *) &new_msg, sizeof(data_st), 0);
     if (ret == -1) {
       perror("msgsnd: Error attempting to send message!");

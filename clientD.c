@@ -11,6 +11,7 @@
  * @param mtype  Type of message to recieve
  */
 void receive_message(int msgqid, msgbuf * msgp, long mtype) {
+  //blocking receive
   int bytesRead = msgrcv(msgqid, msgp, sizeof(struct data_st), mtype, 0);
   if (bytesRead == -1) {
     if (errno == EIDRM) {
@@ -41,6 +42,7 @@ void send_message(char message[MSGSTR_LEN], int msgqid, long to, long from, long
   for(i = 0; i < length; i++) {
     strncpy(ds.msgstr, &(message[i]), 1);
     new_msg.data = ds;
+    //blocking send to prevent error
     int ret = msgsnd(msgqid, (void *) &new_msg, sizeof(data_st), 0);
     if (ret == -1) {
       perror("msgsnd: Error attempting to send message!");
@@ -72,6 +74,7 @@ void * send_thread(void * arg) {
 
   char buffer[MSGSTR_LEN];
 
+  //continually get messages to send
   while(fgets(buffer, MSGSTR_LEN, stdin)) {
     if (buffer[strlen(buffer) - 1] == '\n') {
       buffer[strlen(buffer) - 1] = '\0';
@@ -84,22 +87,26 @@ void * send_thread(void * arg) {
     char numberbuff[255];
     char messagebuff[255];
     pos = strcspn(input, space);
+    //parsing out the key and message
     if(pos) {
+      //parse number
       other_client_key = atoi(strncpy(numberbuff, input, pos));
       char * message;
       if(other_client_key) {
-        message = buffer+pos+1;
+        message = buffer+pos+1; // add space index to get message start
+        //send the message
         printf("Sending \"%s\" to %d\n", message, other_client_key);
         send_message(message, *qID, *key, *client_key, other_client_key);
         if(strcmp(message, EXIT_STR) == 0) exit(0); //exit if you say to exit
       }
       else {
+        //global send here
         message = buffer;
-        send_message(message, *qID, *key, *client_key, 0);
-        //printf("%s%s", "Invalid input!\n", USAGE_STRING);
+        send_message(message, *qID, *key, *client_key, 0); // assume global send
       }
     }
     else printf(USAGE_STRING);
+    //clear the buffers
     strncpy(numberbuff, "", 255); //clear buffer
     strncpy(messagebuff, "", 255); //clear buffer
   }
@@ -139,7 +146,8 @@ void * receive_thread(void * arg) {
     messagebuf.data.dest = to;
     messagebuf.data.source = from;
     strcat(messagebuf.data.msgstr, message);
-    if(strcmp(message, "\0") == 0) {
+
+    if(strcmp(message, "\0") == 0) { //wait until all characters come in
       printf("Received message from %ld: \"%s\"\n", messagebuf.data.source, messagebuf.data.msgstr);
       strncpy(messagebuf.data.msgstr, "", MSGSTR_LEN);
     }
@@ -206,11 +214,14 @@ int main(int argc, char * argv[]) {
   int vars[3];
   char * input;
 
+  //inline function for sending a disconnect message to server
+  //used for when a exit signal is sent to the client from user
   inline void exiting() {
     send_message(DISCONNECT_MSG, qID, key, client_key, key);
     exit(0);
   }
 
+  //handle the ctrl-c and ctrl-z signals to send a message to server
   signal(SIGINT, exiting);
   signal(SIGTSTP, exiting);
 
@@ -240,10 +251,11 @@ int main(int argc, char * argv[]) {
   vars[1] = key;
   vars[2] = client_key;
 
-  //create sender thread
+  //create threads for sender/receiver
   create_thread(&(threads[0]), vars, 1);
   create_thread(&(threads[1]), vars, 2);
 
+  //start the threads
   start_thread(&(threads[0]));
   start_thread(&(threads[1]));
   return 0;

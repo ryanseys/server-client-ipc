@@ -37,6 +37,7 @@ typedef struct msgbuf_st {
  * @param mtype  Type of message to recieve
  */
 void receive_message(int msgqid, msgbuf * msgp, long mtype) {
+  //blocking receive
   int bytesRead = msgrcv(msgqid,msgp,sizeof(struct data_st),mtype,0);
   if (bytesRead == -1) {
     if (errno == EIDRM) {
@@ -89,6 +90,7 @@ void send_message(char message[MSGSTR_LEN], int msgqid, long to, long from){
   for(i = 0; i < length; i++) {
     strncpy(ds.msgstr, &(message[i]), 1);
     new_msg.data = ds;
+    //blocking send to prevent error
     int ret = msgsnd(msgqid, (void *) &new_msg, sizeof(data_st), 0);
     if (ret == -1) {
       perror("msgsnd: Error attempting to send message!");
@@ -112,9 +114,9 @@ void send_message(char message[MSGSTR_LEN], int msgqid, long to, long from){
 void * send_thread(void * arg) {
   int * qID = arg;
   int * key = arg+sizeof(int);
-
   char buffer[MSGSTR_LEN];
 
+  //continue to get user input for sending messages
   while(fgets(buffer, MSGSTR_LEN, stdin)) {
     if (buffer[strlen(buffer) - 1] == '\n') {
       buffer[strlen(buffer) - 1] = '\0';
