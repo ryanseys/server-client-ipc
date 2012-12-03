@@ -30,6 +30,7 @@ void receive_message(int msgqid, msgbuf * msgp, long mtype){
 		if (errno == EIDRM) {
 			fprintf(stderr, "Message queue removed while waiting!\n");
 		}
+    exit(EXIT_FAILURE);
 	}
 }
 
@@ -117,12 +118,13 @@ int main(int argc,char * argv[]){
 
     to = tempbuf.data.dest;
     from = tempbuf.data.source;
+    data_st * pntr;
     strncpy(message, tempbuf.data.msgstr, 1);
-
     if(current_num_clients == 0) {
-      client_msg_buffs[0].data.dest = to;
-      client_msg_buffs[0].data.source = from;
-      strncpy(client_msg_buffs[0].data.msgstr, message, 1);
+      pntr = &(client_msg_buffs[0].data);
+      pntr->dest = to;
+      pntr->source = from;
+      strncpy(pntr->msgstr, message, 1);
       clients[current_num_clients] = from;
       current_num_clients++;
     }
@@ -135,32 +137,31 @@ int main(int argc,char * argv[]){
         i++;
       }
       if(buff != -1) {
-        client_msg_buffs[buff].data.dest = to;
-        client_msg_buffs[buff].data.source = from;
-        strcat(client_msg_buffs[buff].data.msgstr, message);
+        pntr = &(client_msg_buffs[buff].data);
+        pntr->dest = to;
+        pntr->source = from;
+        strcat(pntr->msgstr, message);
         if(strcmp(message, "\0") == 0) {
-            if(client_msg_buffs[buff].data.dest == key) {
+            if(pntr->dest == key) {
               //if its EXIT
-              if(strcmp(client_msg_buffs[buff].data.msgstr, EXIT_STR)==0) {
-                while(k < current_num_clients) {
-                  if(clients[k] != -1) {
-                    send_message(pntr->msgstr, qID, clients[k], pntr->source);
+              if(strcmp(pntr->msgstr, EXIT_STR)==0) {
+                if (msgctl(qID, IPC_RMID, NULL) == -1) {
+                  if (errno == EIDRM) {
+                    fprintf(stderr, "Message queue already removed.\n");
                   }
-                  k++;
+                  else {
+                    perror("Error while removing message queue");
+                  }
                 }
+                exit(0);
               }
-              printf("Received message from %ld: \"%s\"\n",
-                client_msg_buffs[buff].data.source,
-                client_msg_buffs[buff].data.msgstr);
+              printf("Client %ld: \"%s\"\n", pntr->source, pntr->msgstr);
             }
             else {
-              printf("Relaying message to %ld from %ld: \"%s\"\n",
-                client_msg_buffs[buff].data.dest,
-                client_msg_buffs[buff].data.source,
-                client_msg_buffs[buff].data.msgstr);
-              send_message(client_msg_buffs[buff].data.msgstr, qID, client_msg_buffs[buff].data.dest, client_msg_buffs[buff].data.source);
+              printf("Relaying message to %ld from %ld: \"%s\"\n", pntr->dest, pntr->source, pntr->msgstr);
+              send_message(pntr->msgstr, qID, pntr->dest, pntr->source);
             }
-          strcpy(client_msg_buffs[buff].data.msgstr, "");
+          strcpy(pntr->msgstr, "");
         }
       }
       else {

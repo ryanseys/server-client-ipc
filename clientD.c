@@ -16,6 +16,7 @@ void receive_message(int msgqid, msgbuf * msgp, long mtype) {
   if (bytesRead == -1) {
     if (errno == EIDRM) {
       fprintf(stderr, "Message queue removed while waiting!\n");
+      exit(0);
     }
   }
 }
@@ -87,6 +88,12 @@ void * send_thread(void * arg) {
     char numberbuff[255];
     char messagebuff[255];
     pos = strcspn(input, space);
+
+    if(strcmp(EXIT_STR, input) == 0) {
+      send_message(EXIT_STR, *qID, *key, *client_key, *key);
+      exit(0);
+    }
+
     //parsing out the key and message
     if(pos) {
       //parse number
@@ -150,7 +157,7 @@ void * receive_thread(void * arg) {
 
     //have to wait until all character are in. we can tell by the NULL character
     if(strcmp(message, "\0") == 0) { //wait until all characters come in
-      printf("Received message from %ld: \"%s\"\n", messagebuf.data.source, messagebuf.data.msgstr);
+      printf("Client %ld: \"%s\"\n", messagebuf.data.source, messagebuf.data.msgstr);
       strncpy(messagebuf.data.msgstr, "", MSGSTR_LEN);
     }
   }

@@ -3,7 +3,7 @@
 
 #define USAGE_STRING "Invalid arguments.\nUsage: ./serverD.out new_server_key\n"
 #define INVALID_SERVER_KEY "Invalid server key. Please specify a positive integer.\n"
-#define MAX_CLIENTS 10 /* max clients */
+#define MAX_CLIENTS 2 /* max clients */
 
 /**
  * Creates a message queue
@@ -30,6 +30,7 @@ void receive_message(int msgqid, msgbuf * msgp, long mtype){
   if (bytesRead == -1) {
     if (errno == EIDRM) {
       fprintf(stderr, "Message queue removed while waiting!\n");
+      exit(0);
     }
   }
 }
@@ -88,7 +89,7 @@ int main(int argc,char * argv[]){
 
   msgbuf client_msg_buffs[MAX_CLIENTS];
   // 1st commandline argument = key of message queue
-  if(argc == 2){
+  if(argc == 2) {
     key = atoi(argv[1]);
     if(key <= 0) {
       printf(INVALID_SERVER_KEY);
@@ -141,10 +142,22 @@ int main(int argc,char * argv[]){
         pntr->dest = to;
         pntr->source = from;
         strcat(pntr->msgstr, message);
-        printf("printf %s\n", pntr->msgstr);
         if(strcmp(message, "\0") == 0) {
           //printf("Message: %s\n", pntr->msgstr);
             if(pntr->dest == key) {
+              //if its EXIT
+              if(strcmp(pntr->msgstr, EXIT_STR)==0) {
+                printf("Exiting...\n");
+                if (msgctl(qID, IPC_RMID, NULL) == -1) {
+                  if (errno == EIDRM) {
+                    fprintf(stderr, "Message queue already removed.\n");
+                  }
+                  else {
+                    perror("Error while removing message queue");
+                  }
+                }
+                exit(0);
+              }
               if(strcmp(pntr->msgstr, CONNECT_MSG) == 0) {
                 printf("CLIENT %ld CONNECTED\n", pntr->source);
               }
