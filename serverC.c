@@ -128,6 +128,7 @@ int main(int argc,char * argv[]){
     }
     else {
       int i = 0;
+      int k = 0;
       int buff = -1;
       while(i < current_num_clients) {
         if(clients[i] == from) buff = i;
@@ -139,6 +140,15 @@ int main(int argc,char * argv[]){
         strcat(client_msg_buffs[buff].data.msgstr, message);
         if(strcmp(message, "\0") == 0) {
             if(client_msg_buffs[buff].data.dest == key) {
+              //if its EXIT
+              if(strcmp(client_msg_buffs[buff].data.msgstr, EXIT_STR)==0) {
+                while(k < current_num_clients) {
+                  if(clients[k] != -1) {
+                    send_message(pntr->msgstr, qID, clients[k], pntr->source);
+                  }
+                  k++;
+                }
+              }
               printf("Received message from %ld: \"%s\"\n",
                 client_msg_buffs[buff].data.source,
                 client_msg_buffs[buff].data.msgstr);

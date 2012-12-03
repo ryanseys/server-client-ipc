@@ -79,6 +79,10 @@ void * send_thread(void * arg) {
     }
 
     char* input = buffer;
+    if(strcmp(EXIT_STR, input) == 0) {
+      send_message(EXIT_STR, *qID, *key, *client_key, *key);
+      exit(0);
+    }
     char* space = " ";
     int start = 0;
     int pos;

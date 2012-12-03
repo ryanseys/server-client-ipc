@@ -141,6 +141,7 @@ int main(int argc,char * argv[]){
         pntr->dest = to;
         pntr->source = from;
         strcat(pntr->msgstr, message);
+        printf("printf %s\n", pntr->msgstr);
         if(strcmp(message, "\0") == 0) {
           //printf("Message: %s\n", pntr->msgstr);
             if(pntr->dest == key) {
