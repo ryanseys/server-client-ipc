@@ -1,30 +1,25 @@
-Assignment 3 for SYSC 4001
-==========================
+# Server/Client IPC (inter-process communications) written in C
 
-## Written by Ryan Seys & Osazuwa Omigie
+## Written by Ryan Seys & Osazuwa Omigie (for Assignment 3 - SYSC 4001)
 
-Part B files
-============
+### Part B files
 
 * clientB.c
 * serverB.c
 
-Part C files
-============
+### Part C files
 
 * clientC.c
 * serverC.c
 * ipcserverclient.h
 
-Part D files
-============
+### Part D files
 
 * clientD.c
 * serverD.c
 * ipcserverclient.h
 
-Makefile
-========
+### Makefile
 
 There is a make file included in this package, use it to build/compile the source code provided.
 You can also use the Makefile to run the projects just run:
@@ -43,9 +38,7 @@ You can also use the Makefile to run the projects just run:
 NOTE: Please notice that if you want to run an additional client, you must manually call the
 command for it instead of relying on the Makefile to start it.
 
-==============
-Running Part B
-==============
+## Running Part B
 
 Start Part B server:              $ make sb
   You will now have a server connected to message queue with key 42.
@@ -57,9 +50,7 @@ the message will be printed on the server, and then sent back to the client (aga
 
 If you send "EXIT" as the message in the client to the server, it will quit the server and client.
 
-==============
-Running Part C
-==============
+## Running Part C
 
 Start Part C server:              $ make sc
   You will now have a server connected to message queue with key 42.
@@ -92,9 +83,7 @@ e.g. from client 69 type:   123 hello there how are you?
   other running server in another process). Once client 123 recieves the message,
   it will print the message on the screen.
 
-==============
-Running Part D
-==============
+## Running Part D
 
 ** NEW ** features:
  * Connect messages displayed on server when a client connects.
